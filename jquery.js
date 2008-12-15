@@ -2689,9 +2689,35 @@ jQuery.extend({
 
 		var requestDone = false;
 
-		// Create the request object; Microsoft failed to properly
-		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
-		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+//		// Create the request object; Microsoft failed to properly
+//		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
+//		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+
+		var _xhr = function() {
+			this.readyState = 0; // UNSENT
+		};
+		_xhr.prototype = {
+			open: function(type, url, async, username, password) {
+				this.readyState = 1; // OPENED
+				this.url = url;
+			},
+			send: function() {
+				var self = this;
+				gadgets.io.makeRequest(this.url, function(res) {
+					self.readyState = 4; // DONE
+					self.status = res.rc;
+					self.responseText = res.text;
+				});
+			},
+			abort: function() {
+				this.readyState = 0; // UNSENT
+			},
+			setRequestHeader: function() {
+			},
+			getResponseHeader: function() {
+			}
+		};
+		var xhr = new _xhr();
 
 		// Open the socket
 		// Passing null username, generates a login popup on Opera (#2865)
