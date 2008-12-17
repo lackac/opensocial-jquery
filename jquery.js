@@ -2699,22 +2699,33 @@ jQuery.extend({
 		_xhr.prototype = {
 			open: function(type, url, async, username, password) {
 				this.readyState = 1; // OPENED
+				this.type = type;
 				this.url = url;
+				this.requestHeaders = {};
+				this.responseHeaders = {};
 			},
-			send: function() {
+			send: function(data) {
 				var self = this;
+				var opt_params = [];
+				opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
+				opt_params[gadgets.io.RequestParameters.HEADERS] = self.requestHeaders;
+				if (data)
+				  opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
 				gadgets.io.makeRequest(this.url, function(res) {
 					self.readyState = 4; // DONE
 					self.status = res.rc;
+					self.responseHeaders = res.headers;
 					self.responseText = res.text;
-				});
+				}, opt_params);
 			},
 			abort: function() {
 				this.readyState = 0; // UNSENT
 			},
-			setRequestHeader: function() {
+			setRequestHeader: function(header, value) {
+			  this.requestHeaders[header] = value;
 			},
-			getResponseHeader: function() {
+			getResponseHeader: function(header) {
+			  return this.responseHeaders[header];
 			}
 		};
 		var xhr = new _xhr();
