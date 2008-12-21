@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!--
+-->
+<feature>
+<name>opensocial-jquery</name>
+<gadget>
+<script src="jquery.js" />
+<script src="jquery.gadgets.js" />
+</gadget>
+</feature>
