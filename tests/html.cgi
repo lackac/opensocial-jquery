@@ -27,9 +27,16 @@ print <<EOB;
 <div>jQuery.ajax is succeeded.</div>
 EOB
 
+#use lib qw(../../../extlib);
+#use CGI qw(:standard);
+
+#print ul(
+#  li( escapeHTML('CONTENT_TYPE: ' . $cgi->content_type) )
+#);
+
 #print ul(
 #  map {
-#    li( escapeHTML($_ . ': ' . $cgi->http($_)))
+#    li( escapeHTML($_ . ': ' . $cgi->http($_)) )
 #  } $cgi->http()
 #);
 

@@ -2833,12 +2833,12 @@ jQuery.extend({
 				complete();
 
 				// Stop memory leaks
-				if ( s.async )
+//				if ( s.async )
 					xhr = null;
 			}
 		};
 
-		if ( s.async ) {
+//		if ( s.async ) {
 			// don't attach the handler to the request, just poll it instead
 			var ival = setInterval(onreadystatechange, 13);
 
@@ -2854,7 +2854,7 @@ jQuery.extend({
 							onreadystatechange( "timeout" );
 					}
 				}, s.timeout);
-		}
+//		}
 
 		// Send the data
 		try {
@@ -2863,9 +2863,9 @@ jQuery.extend({
 			jQuery.handleError(s, xhr, null, e);
 		}
 
-		// firefox 1.5 doesn't fire statechange for sync requests
-		if ( !s.async )
-			onreadystatechange();
+//		// firefox 1.5 doesn't fire statechange for sync requests
+//		if ( !s.async )
+//			onreadystatechange();
 
 		function success(){
 			// If a local callback was specified, fire it and pass it the data

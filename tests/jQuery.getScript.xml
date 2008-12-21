@@ -51,16 +51,16 @@ jQuery(function($) {
    * error
    */
 
-  var notJsonUrl = baseUrl + '/parsererror.js';
+  var parsererrorUrl = baseUrl + '/parsererror.js';
 
-  $.getScript(notJsonUrl, function(data, status) {
+  $.getScript(parsererrorUrl, function(data, status) {
     console.error(data);
     console.error(status);
   });
 
-  var notfoundUrl = baseUrl + '/404.html';
+  var errorUrl = baseUrl + '/404.html';
 
-  $.getScript(notfoundUrl, function(data, status) {
+  $.getScript(errorUrl, function(data, status) {
     console.error(data);
     console.error(status);
   });

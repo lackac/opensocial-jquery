@@ -57,13 +57,13 @@ jQuery(function($) {
     console.info(xhr);
   });
 
-  var notfoundUrl = baseUrl + '/404.html';
+  var errorUrl = baseUrl + '/404.html';
 
   /**
    * error
    */
 
-  $('#error1').load(notfoundUrl, function(data, status, xhr) {
+  $('#error1').load(errorUrl, function(data, status, xhr) {
     console.error(data);
     console.error(status);
     console.error(xhr);

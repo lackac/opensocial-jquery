@@ -44,16 +44,16 @@ jQuery(function($) {
    * error
    */
 
-  var notJsonUrl = baseUrl + '/parsererror.json';
+  var parsererrorUrl = baseUrl + '/parsererror.json';
 
-  $.get(notJsonUrl, { foo: 'bar' }, function(data, status) {
+  $.get(parsererrorUrl, { foo: 'bar' }, function(data, status) {
     console.error(data);
     console.error(status);
   }, 'json');
 
-  var notfoundUrl = baseUrl + '/404.html';
+  var errorUrl = baseUrl + '/404.html';
 
-  $.get(notfoundUrl, { foo: 'bar' }, function(data, status) {
+  $.get(errorUrl, { foo: 'bar' }, function(data, status) {
     console.error(data);
     console.error(status);
   }, 'json');
