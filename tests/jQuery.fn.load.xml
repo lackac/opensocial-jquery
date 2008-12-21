@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="jQuery.fn.load - opensocial-jquery">
+</ModulePrefs>
+<Content type="html"><![CDATA[
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+  
+  // Global Events
+  $('#event1')
+    .ajaxStart(function() { console.log('ajaxStart'); })
+    .ajaxSend(function() { console.log('ajaxSend'); })
+    .ajaxSuccess(function() { console.log('ajaxSuccess'); })
+    .ajaxError(function() { console.log('ajaxError'); })
+    .ajaxComplete(function() { console.log('ajaxComplete'); })
+    .ajaxStop(function() { console.log('ajaxStop'); });
+
+  /**
+   * success
+   */
+
+  var getUrl = 'http://developmentor.lrlab.to/opensocial-jquery/html.cgi';
+
+  // GET
+  $('#get1').load(getUrl);
+
+  // GET + callback
+  $('#get2').load(getUrl, function(data, status, xhr) {
+    console.info(data);
+    console.info(status);
+    console.info(xhr);
+  });
+
+  var postUrl = 'http://developmentor.lrlab.to/opensocial-jquery/html.cgi';
+
+  // POST
+  $('#post1').load(postUrl, { foo: 'bar' });
+
+  // POST + callback
+  $('#post2').load(postUrl, { foo: 'bar' }, function(data, status, xhr) {
+    console.info(data);
+    console.info(status);
+    console.info(xhr);
+  });
+
+  var notfoundUrl = 'http://developmentor.lrlab.to/opensocial-jquery/404.html';
+
+  /**
+   * error
+   */
+
+  $('#error1').load(notfoundUrl, function(data, status, xhr) {
+    console.info(data);
+    console.info(status);
+    console.info(xhr);
+  });
+
+});
+//gadgets.ut
+</script>
+<div id="event1"></div>
+<div id="get1"></div>
+<div id="get2"></div>
+<div id="post1"></div>
+<div id="post2"></div>
+<div id="error1"></div>
+]]></Content>
+</Module>
