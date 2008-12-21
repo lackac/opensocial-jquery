@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
+<!--
+OpenSocial jQuery
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
 <ModulePrefs title="jQuery.ready - opensocial-jquery">
 </ModulePrefs>
 <Content type="html"><![CDATA[
 <script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
 <script type="text/javascript">
+
 jQuery(function($) {
-  alert('jQuery.ready: 1');
+  console.info('jQuery.ready: 1');
 });
 
 jQuery(function($) {
-  alert('jQuery.ready: 2');
+  console.info('jQuery.ready: 2');
 });
 
 $(document).ready(function() {
-  alert('jQuery.ready: 3');
+  console.info('jQuery.ready: 3');
 });
 
 //gadgets.ut

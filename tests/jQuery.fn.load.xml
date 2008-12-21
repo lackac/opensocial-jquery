@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
+<!--
+OpenSocial jQuery
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
 <ModulePrefs title="jQuery.fn.load - opensocial-jquery">
 </ModulePrefs>
 <Content type="html"><![CDATA[
 <script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
+
+  var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery';
   
   // Global Events
   $('#event1')
@@ -20,7 +33,7 @@ jQuery(function($) {
    * success
    */
 
-  var getUrl = 'http://developmentor.lrlab.to/opensocial-jquery/html.cgi';
+  var getUrl = baseUrl + '/html.cgi';
 
   // GET
   $('#get1').load(getUrl);
@@ -32,7 +45,7 @@ jQuery(function($) {
     console.info(xhr);
   });
 
-  var postUrl = 'http://developmentor.lrlab.to/opensocial-jquery/html.cgi';
+  var postUrl = baseUrl + '/html.cgi';
 
   // POST
   $('#post1').load(postUrl, { foo: 'bar' });
@@ -44,16 +57,16 @@ jQuery(function($) {
     console.info(xhr);
   });
 
-  var notfoundUrl = 'http://developmentor.lrlab.to/opensocial-jquery/404.html';
+  var notfoundUrl = baseUrl + '/404.html';
 
   /**
    * error
    */
 
   $('#error1').load(notfoundUrl, function(data, status, xhr) {
-    console.info(data);
-    console.info(status);
-    console.info(xhr);
+    console.error(data);
+    console.error(status);
+    console.error(xhr);
   });
 
 });

@@ -11,7 +11,7 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 -->
-<ModulePrefs title="jQuery.getScript - opensocial-jquery">
+<ModulePrefs title="html - jQuery.get - opensocial-jquery">
 </ModulePrefs>
 <Content type="html"><![CDATA[
 <script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
@@ -33,37 +33,28 @@ jQuery(function($) {
    * success
    */
 
-  // text/html
-  // application/json
-  // text/javascript
-  var getUrl = baseUrl + '/script.cgi';
+  var getUrl = baseUrl + '/html.cgi';
 
-  // GET
-  $.getScript(getUrl);
-  
-  // GET + callback
-  $.getScript(getUrl, function(data, status) {
+  $.get(getUrl, { foo: 'bar' }, function(data, status) {
     console.info(data);
     console.info(status);
-  });
+  }); // default => dataType='html'
+
+  $.get(getUrl, { foo: 'bar' }, function(data, status) {
+    console.info(data);
+    console.info(status);
+  }, 'html');
 
   /**
    * error
    */
 
-  var notJsonUrl = baseUrl + '/parsererror.js';
-
-  $.getScript(notJsonUrl, function(data, status) {
-    console.error(data);
-    console.error(status);
-  });
-
   var notfoundUrl = baseUrl + '/404.html';
 
-  $.getScript(notfoundUrl, function(data, status) {
+  $.get(notfoundUrl, { foo: 'bar' }, function(data, status) {
     console.error(data);
     console.error(status);
-  });
+  }, 'html');
 
 });
 //gadgets.ut
