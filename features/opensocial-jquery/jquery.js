@@ -1,4 +1,16 @@
 (function(){
+/**
+ * OpenSocial jQuery 0.0.0
+ * 
+ * Copyright(C) 2008 LEARNING RESOURCE LAB
+ * http://friendfeed.com/nakajiman
+ * http://hp.submit.ne.jp/d/16750/
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://www.gnu.org/licenses/gpl.html
+ */
+
 /*
  * jQuery 1.2.6 - New Wave Javascript
  *
@@ -2718,6 +2730,8 @@ jQuery.extend({
 					self.status = res.rc;
 					self.responseHeaders = res.headers;
 					self.responseText = res.text;
+					if (s.dataType === 'xml')
+						self.responseXML = res.data;
 				}, opt_params);
 			},
 			abort: function() {
