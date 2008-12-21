@@ -2624,8 +2624,8 @@ jQuery.extend({
 				// Garbage collect
 				window[ jsonp ] = undefined;
 				try{ delete window[ jsonp ]; } catch(e){}
-				if ( head )
-					head.removeChild( script );
+//				if ( head )
+//					head.removeChild( script );
 			};
 		}
 
@@ -2652,40 +2652,40 @@ jQuery.extend({
 		if ( s.global && ! jQuery.active++ )
 			jQuery.event.trigger( "ajaxStart" );
 
-		// Matches an absolute URL, and saves the domain
-		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
-
-		// If we're requesting a remote document
-		// and trying to load JSON or Script with a GET
-		if ( s.dataType == "script" && type == "GET"
-				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
-			var head = document.getElementsByTagName("head")[0];
-			var script = document.createElement("script");
-			script.src = s.url;
-			if (s.scriptCharset)
-				script.charset = s.scriptCharset;
-
-			// Handle Script loading
-			if ( !jsonp ) {
-				var done = false;
-
-				// Attach handlers for all browsers
-				script.onload = script.onreadystatechange = function(){
-					if ( !done && (!this.readyState ||
-							this.readyState == "loaded" || this.readyState == "complete") ) {
-						done = true;
-						success();
-						complete();
-						head.removeChild( script );
-					}
-				};
-			}
-
-			head.appendChild(script);
-
-			// We handle everything using the script element injection
-			return undefined;
-		}
+//		// Matches an absolute URL, and saves the domain
+//		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
+//
+//		// If we're requesting a remote document
+//		// and trying to load JSON or Script with a GET
+//		if ( s.dataType == "script" && type == "GET"
+//				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
+//			var head = document.getElementsByTagName("head")[0];
+//			var script = document.createElement("script");
+//			script.src = s.url;
+//			if (s.scriptCharset)
+//				script.charset = s.scriptCharset;
+//
+//			// Handle Script loading
+//			if ( !jsonp ) {
+//				var done = false;
+//
+//				// Attach handlers for all browsers
+//				script.onload = script.onreadystatechange = function(){
+//					if ( !done && (!this.readyState ||
+//							this.readyState == "loaded" || this.readyState == "complete") ) {
+//						done = true;
+//						success();
+//						complete();
+//						head.removeChild( script );
+//					}
+//				};
+//			}
+//
+//			head.appendChild(script);
+//
+//			// We handle everything using the script element injection
+//			return undefined;
+//		}
 
 		var requestDone = false;
 
@@ -2709,8 +2709,10 @@ jQuery.extend({
 				var opt_params = [];
 				opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
 				opt_params[gadgets.io.RequestParameters.HEADERS] = self.requestHeaders;
+				opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = s.dataType === 'xml'
+					? gadgets.io.ContentType.DOM : gadgets.io.ContentType.TEXT;
 				if (data)
-				  opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
+					opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
 				gadgets.io.makeRequest(this.url, function(res) {
 					self.readyState = 4; // DONE
 					self.status = res.rc;
