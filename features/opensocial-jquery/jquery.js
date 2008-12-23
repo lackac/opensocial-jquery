@@ -1,7 +1,8 @@
 (function(){
 /**
- * OpenSocial jQuery 0.1.0
- * 
+ * opensocial-jquery 0.1.0
+ * http://code.google.com/p/opensocial-jquery/
+ *
  * Copyright(C) 2008 LEARNING RESOURCE LAB
  * http://friendfeed.com/nakajiman
  * http://hp.submit.ne.jp/d/16750/

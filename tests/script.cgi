@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 #!perl
 ##
-## OpenSocial jQuery
+## opensocial-jquery
+## http://code.google.com/p/opensocial-jquery/
 ##
 ## Copyright(C) 2008 LEARNING RESOURCE LAB
 ## http://friendfeed.com/nakajiman

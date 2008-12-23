@@ -1,8 +1,20 @@
 <?xml version="1.0"?>
 <!--
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
 -->
 <feature>
 <name>opensocial-jquery</name>
+<dependency>dynamic-height</dependency>
+<dependency>settitle</dependency>
 <gadget>
 <script src="jquery.js" />
 <script src="jquery.gadgets.js" />

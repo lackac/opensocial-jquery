@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
 <!--
-OpenSocial jQuery
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
 
 Copyright(C) 2008 LEARNING RESOURCE LAB
 http://friendfeed.com/nakajiman
@@ -14,34 +15,52 @@ http://www.gnu.org/licenses/gpl.html
 <ModulePrefs 
   title="jQuery.getJSON - samples - opensocial-jquery"
 >
+<Require feature="dynamic-height" />
+<Require feature="settitle" />
 </ModulePrefs>
+<UserPref name="tag" default_value="dog" required="true" />
 <Content type="html"><![CDATA[
 <script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.gadgets.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
 
-  var tag = 'dog';
-  
-  var url = 'http://gdata.youtube.com/feeds/videos?'
-    + $.param({ vq: tag, 'max-results': 20, alt: 'json'});
+  // Retrieves a preference as a string.
+  var tag = $.pref('tag');
 
-  $.getJSON(url, function(data) {
-    $.each(data.feed.entry, function() {
-	  $('<img/>')
-	    .attr('src', this.media$group.media$thumbnail[0].url)
-	    .attr('width', 64)
-		.attr('heieht', 48)
+  // Sets the gadget title.
+  $(window).title(tag + ' - YouTube');
+  
+  // Fetches content from the YouTube that content into the callback function.
+  var url = 'http://gdata.youtube.com/feeds/videos';
+  var data = { vq: tag, 'max-results': 21, alt: 'json' };
+
+  $.getJSON(url, data, function(json) {
+
+	$.each(json.feed.entry, function() {
+
+	  var img = $('<img width="80" heieht="60" />')
+	    .attr('src', this.media$group.media$thumbnail[0].url);
+
+	  $('<a target="_blank" />')
+	    .attr('href', this.media$group.media$player[0].url)
+		.append(img)
 		.appendTo('#videos');
 	});
+
+    // Adjusts the gadget height.
+	$(window).adjustHeight();
   });
 
 });
-//gadgets.ut
 </script>
 <style type="text/css">
 <!--
 #videos img {
+  border: 0;
   margin: 2px;
+  width: 80px;
+  height: 60px;
 }
 -->
 </style>
