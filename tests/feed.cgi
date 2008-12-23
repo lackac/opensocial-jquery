@@ -18,29 +18,24 @@ $CGI::POST_MAX=1024*1024*1; #1MB
 
 my $cgi = CGI->new();
 
-my $callback = $cgi->param('callback');
-if (not $callback) {
-  $callback = $cgi->param('kcabllac');
-}
-if ($callback !~ /^[0-9a-z]+$/) {
-  undef $callback;
-}
-
 print $cgi->header(
-  #-type => 'text/html',
-  -type => 'application/json',
-  #-type => 'text/javascript',
+  -type => 'text/xml',
   -charset => 'utf-8'
 );
 
-if ($callback) {
-  print <<EOB;
-$callback({ say: 'jQuery.ajax is succeeded.' });
+print <<EOB;
+<?xml version="1.0" encoding="UTF-8"?>
+<feed
+  xmlns="http://www.w3.org/2005/Atom"
+  xml:lang="ja"
+>
+<link href="http://example.com" />
+<title>title</title>
+<entry>
+<link href="http://example.com/1" />
+<title>title/1</title>
+</entry>
+</feed>
 EOB
-} else {
-  print <<EOB;
-{ say: 'jQuery.ajax is succeeded.' }
-EOB
-}
 
 1;

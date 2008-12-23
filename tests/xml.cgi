@@ -19,7 +19,9 @@ $CGI::POST_MAX=1024*1024*1; #1MB
 my $cgi = CGI->new();
 
 print $cgi->header(
-  -type => 'text/html',
+  -type => 'text/xml',
+  #-type => 'application/xml',
+  #-type => 'text/html',
   -charset => 'utf-8'
 );
 

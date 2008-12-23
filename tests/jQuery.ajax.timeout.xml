@@ -11,24 +11,34 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 -->
-<ModulePrefs title="jQuery.ready - opensocial-jquery">
+<ModulePrefs title="timeout - jQuery.ajax - opensocial-jquery">
 </ModulePrefs>
 <Content type="html"><![CDATA[
 <script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
 <script type="text/javascript">
-
 jQuery(function($) {
-  console.info('jQuery.ready: 1');
-});
 
-jQuery(function($) {
-  console.info('jQuery.ready: 2');
-});
+  var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery';
 
-$(document).ready(function() {
-  console.info('jQuery.ready: 3');
-});
+  var url = baseUrl + '/html.cgi';
 
+  $.ajax({
+    url: url, timeout: 1, // 1ms.
+ 
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+  
+    complete: function(xhr, status) {
+      console.log('complete', xhr, status);
+    }
+  });
+
+});
 //gadgets.ut
 </script>
 ]]></Content>

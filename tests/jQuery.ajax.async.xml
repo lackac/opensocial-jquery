@@ -24,28 +24,27 @@ jQuery(function($) {
    * success
    */
 
-  var getUrl = baseUrl + '/html.cgi';
+  var url = baseUrl + '/html.cgi';
 
   $.ajax({
-    url: getUrl, async: true,  // Not supported.
-	
-	complete: function(xhr, status) {
+    url: url, async: true,  // Not supported.
+  
+    complete: function(xhr, status) {
       console.log('complete: async=true', xhr, status);
-	}
+    }
   });
 
-  var getUrl = baseUrl + '/html.cgi';
+  var url = baseUrl + '/html.cgi';
 
   $.ajax({ 
-    url: getUrl, async: false, // Not supported.
-	
-	complete: function(xhr, status) {
+    url: url, async: false, // Not supported.
+  
+    complete: function(xhr, status) {
       console.log('complete: async=false', xhr, status);
-	}
+    }
   });
 });
 //gadgets.ut
 </script>
-<div id="event1"></div>
 ]]></Content>
 </Module>

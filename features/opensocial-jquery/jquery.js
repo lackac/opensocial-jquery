@@ -1,6 +1,6 @@
 (function(){
 /**
- * OpenSocial jQuery 0.0.0
+ * OpenSocial jQuery 0.1.0
  * 
  * Copyright(C) 2008 LEARNING RESOURCE LAB
  * http://friendfeed.com/nakajiman
@@ -2550,6 +2550,10 @@ jQuery.extend({
 		return jQuery.get(url, data, callback, "json");
 	},
 
+	getFeed: function( url, data, callback ) {
+		return jQuery.get(url, data, callback, 'feed');
+	},
+
 	post: function( url, data, callback, type ) {
 		if ( jQuery.isFunction( data ) ) {
 			callback = data;
@@ -2721,17 +2725,26 @@ jQuery.extend({
 				var opt_params = [];
 				opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
 				opt_params[gadgets.io.RequestParameters.HEADERS] = self.requestHeaders;
-				opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] = s.dataType === 'xml'
-					? gadgets.io.ContentType.DOM : gadgets.io.ContentType.TEXT;
+				opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] =
+				  s.dataType === 'xml' && gadgets.io.ContentType.DOM ||
+				  s.dataType === 'feed' && gadgets.io.ContentType.FEED ||
+				  gadgets.io.ContentType.TEXT;
 				if (data)
 					opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
 				gadgets.io.makeRequest(this.url, function(res) {
 					self.readyState = 4; // DONE
-					self.status = res.rc;
-					self.responseHeaders = res.headers;
-					self.responseText = res.text;
-					if (s.dataType === 'xml')
-						self.responseXML = res.data;
+					if (res.errors.length > 0) {
+						self.status = 400;
+						self.responseText = res.errors.join(' ');
+					} else {
+						self.status = res.rc;
+						self.responseHeaders = res.headers;
+						self.responseText = res.text;
+						if (s.dataType === 'xml')
+							self.responseXML = res.data;
+						else if (s.dataType === 'feed')
+						self.responseFeed = res.data;
+					}
 				}, opt_params);
 			},
 			abort: function() {
@@ -2933,9 +2946,14 @@ jQuery.extend({
 	httpData: function( xhr, type, filter ) {
 		var ct = xhr.getResponseHeader("content-type"),
 			xml = type == "xml" || !type && ct && ct.indexOf("xml") >= 0,
-			data = xml ? xhr.responseXML : xhr.responseText;
+//			data = xml ? xhr.responseXML : xhr.responseText;
+			feed = type === 'feed',
+			data = xml && xhr.responseXML || feed && xhr.responseFeed || xhr.responseText;
 
 		if ( xml && data.documentElement.tagName == "parsererror" )
+			throw "parsererror";
+
+		if ( feed && !data )
 			throw "parsererror";
 			
 		// Allow a pre-filtering function to sanitize the response

@@ -24,26 +24,26 @@ jQuery(function($) {
    * success
    */
 
-  var getUrl = baseUrl + '/html.cgi';
+  var url = baseUrl + '/html.cgi';
 
   $.ajax({
-    url: getUrl,
+    url: url,
     
-	beforeSend: function(xhr) {
-	  console.log('beforeSend', xhr);
-	},
-	
-	success: function(data, status) {
-	  console.log('success', data, status);
-	},
-	
-	error: function(xhr, status, e)	{
-	  console.log('error', xhr, status, e);
-	},
-	
-	complete: function(xhr, status) {
-      console.log('complete', xhr, status);
-	}
+    beforeSend: function(xhr) {
+      console.log('beforeSend', xhr);
+    },
+    
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+    
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+    
+    complete: function(xhr, status) {
+        console.log('complete', xhr, status);
+    }
   });
 
   /**
@@ -55,21 +55,21 @@ jQuery(function($) {
   $.ajax({
     url: parsererrorUrl, dataType: 'json',
     
-	beforeSend: function(xhr) {
-	  console.log('beforeSend', xhr);
-	},
-	
-	success: function(data, status) {
-	  console.log('success', data, status);
-	},
-	
-	error: function(xhr, status, e)	{
-	  console.log('error', xhr, status, e);
-	},
-	
-	complete: function(xhr, status) {
-      console.log('complete', xhr, status);
-	}
+    beforeSend: function(xhr) {
+      console.log('beforeSend', xhr);
+    },
+    
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+    
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+    
+    complete: function(xhr, status) {
+        console.log('complete', xhr, status);
+    }
   });
 
   var parsererrorUrl = baseUrl + '/parsererror.js';
@@ -77,21 +77,21 @@ jQuery(function($) {
   $.ajax({
     url: parsererrorUrl, dataType: 'script',
     
-	beforeSend: function(xhr) {
-	  console.log('beforeSend', xhr);
-	},
-	
-	success: function(data, status) {
-	  console.log('success', data, status);
-	},
-	
-	error: function(xhr, status, e)	{
-	  console.log('error', xhr, status, e);
-	},
-	
-	complete: function(xhr, status) {
-      console.log('complete', xhr, status);
-	}
+    beforeSend: function(xhr) {
+      console.log('beforeSend', xhr);
+    },
+    
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+    
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+    
+    complete: function(xhr, status) {
+        console.log('complete', xhr, status);
+    }
   });
 
   var parsererrorUrl = baseUrl + '/parsererror.xml';
@@ -99,21 +99,43 @@ jQuery(function($) {
   $.ajax({
     url: parsererrorUrl, dataType: 'xml',
     
-	beforeSend: function(xhr) {
-	  console.log('beforeSend', xhr);
-	},
-	
-	success: function(data, status) {
-	  console.log('success', data, status);
-	},
-	
-	error: function(xhr, status, e)	{
-	  console.log('error', xhr, status, e);
-	},
-	
-	complete: function(xhr, status) {
-      console.log('complete', xhr, status);
-	}
+    beforeSend: function(xhr) {
+      console.log('beforeSend', xhr);
+    },
+    
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+    
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+    
+    complete: function(xhr, status) {
+        console.log('complete', xhr, status);
+    }
+  });
+
+  var parsererrorUrl = baseUrl + '/parsererror.xml';
+
+  $.ajax({
+    url: parsererrorUrl, dataType: 'feed',
+    
+    beforeSend: function(xhr) {
+      console.log('beforeSend', xhr);
+    },
+    
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+    
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+    
+    complete: function(xhr, status) {
+        console.log('complete', xhr, status);
+    }
   });
 
   var errorUrl = baseUrl + '/404.html';
@@ -121,26 +143,25 @@ jQuery(function($) {
   $.ajax({
     url: errorUrl,
     
-	beforeSend: function(xhr) {
-	  console.log('beforeSend', xhr);
-	},
-	
-	success: function(data, status) {
-	  console.log('success', data, status);
-	},
-	
-	error: function(xhr, status, e)	{
-	  console.log('error', xhr, status, e);
-	},
-	
-	complete: function(xhr, status) {
-      console.log('complete', xhr, status);
-	}
+    beforeSend: function(xhr) {
+      console.log('beforeSend', xhr);
+    },
+    
+    success: function(data, status) {
+      console.log('success', data, status);
+    },
+    
+    error: function(xhr, status, e) {
+      console.log('error', xhr, status, e);
+    },
+    
+    complete: function(xhr, status) {
+        console.log('complete', xhr, status);
+    }
   });
 
 });
 //gadgets.ut
 </script>
-<div id="event1"></div>
 ]]></Content>
 </Module>

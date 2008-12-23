@@ -19,62 +19,61 @@ http://www.gnu.org/licenses/gpl.html
 jQuery(function($) {
 
   var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery';
-  
+
   /**
    * success
    */
    
-  var getUrl = baseUrl + '/html.cgi';
+  var url = baseUrl + '/html.cgi';
 
   $.ajax({
-    url: getUrl, // cache: undefined
-	
-	complete: function(xhr, status) {
+    url: url, // cache: undefined
+  
+  complete: function(xhr, status) {
       console.log('complete: async=true', xhr, status);
-	}
+  }
   });
 
-  var getUrl = baseUrl + '/html.cgi';
+  var url = baseUrl + '/html.cgi';
 
   $.ajax({ 
-    url: getUrl, cache: true,
-	
-	complete: function(xhr, status) {
+    url: url, cache: true,
+  
+    complete: function(xhr, status) {
       console.log('complete: async=false', xhr, status);
-	}
+    }
   });
 
-  var getUrl = baseUrl + '/html.cgi';
+  var url = baseUrl + '/html.cgi';
 
   $.ajax({ 
-    url: getUrl, cache: false,
-	
-	complete: function(xhr, status) {
+    url: url, cache: false,
+  
+    complete: function(xhr, status) {
       console.log('complete: async=false', xhr, status);
-	}
+    }
   });
 
-  var getUrl = baseUrl + '/script.cgi';
+  var url = baseUrl + '/script.cgi';
 
   $.ajax({ 
-    url: getUrl, dataType: 'script', // cache: false (force)
-	
-	complete: function(xhr, status) {
+    url: url, dataType: 'script', // cache: false (force)
+  
+    complete: function(xhr, status) {
       console.log('complete: async=false', xhr, status);
-	}
+    }
   });
 
   $.ajax({ 
-    url: getUrl, dataType: 'script', type: 'POST', // ignore cache:
-	
-	complete: function(xhr, status) {
+    url: url, dataType: 'script', type: 'POST', // ignore cache:
+  
+    complete: function(xhr, status) {
       console.log('complete: async=false', xhr, status);
-	}
+    }
   });
 
 });
 //gadgets.ut
 </script>
-<div id="event1"></div>
 ]]></Content>
 </Module>

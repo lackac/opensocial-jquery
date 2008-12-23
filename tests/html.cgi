@@ -20,7 +20,9 @@ my $cgi = CGI->new();
 
 print $cgi->header(
   -type => 'text/html',
-  -charset => 'utf-8'
+  -charset => 'utf-8',
+# -status => '304 Not Modified',
+# -last_modified => 'Thu, 20 Nov 2008 00:41:32 GMT',
 );
 
 print <<EOB;
@@ -31,7 +33,9 @@ EOB
 #use CGI qw(:standard);
 
 #print ul(
-#  li( escapeHTML('CONTENT_TYPE: ' . $cgi->content_type) )
+#  map {
+#    li( escapeHTML($_ . ': ' . $ENV{$_}) )
+#  } keys %ENV
 #);
 
 #print ul(
