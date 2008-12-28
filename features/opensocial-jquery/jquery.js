@@ -2299,12 +2299,13 @@ jQuery.fn.extend({
 		// If the DOM is already ready
 		if ( jQuery.isReady )
 			// Execute the function immediately
-			fn.call( document, jQuery );
+			fn.call( document, jQuery, gadgets.views.getParams() );
 
 		// Otherwise, remember the function for later
 		else
 			// Add the function to the wait list
-			jQuery.readyList.push( function() { return fn.call(this, jQuery); } );
+//			jQuery.readyList.push( function() { return fn.call(this, jQuery); } );
+			jQuery.readyList.push( function() { return fn.call( this, jQuery, gadgets.views.getParams() ); } );
 
 		return this;
 	}
