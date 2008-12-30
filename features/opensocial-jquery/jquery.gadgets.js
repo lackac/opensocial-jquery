@@ -1,6 +1,6 @@
 (function($) {
 /**
- * opensocial-jquery 0.1.0
+ * opensocial-jquery 0.2.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Copyright(C) 2008 LEARNING RESOURCE LAB
@@ -12,14 +12,18 @@
  * http://www.gnu.org/licenses/gpl.html
  */
   
-  // Preference
+  /**
+   * Preference
+   */
   var prefs = new gadgets.Prefs();
   
   $.pref = function(key) {
     return prefs.getString(key);
   };
   
-  // Window
+  /**
+   * Window
+   */
   $.fn.adjustHeight = function(height) {
     if (this[0] === window)
       gadgets.window.adjustHeight(height);
@@ -30,27 +34,29 @@
       gadgets.window.setTitle(title);
   };
   
-  // View
+  /** 
+   * View
+   */
   $.view = function(name, data) {
-    if (name === undefined)	
+    if (name === undefined) 
       return gadgets.views.getCurrentView().getName();
-	var views = gadgets.views.getSupportedViews();
-	for (var type in views) {
-	  var view = views[type];
-	  if (view.getName() === name)
-	    return gadgets.views.requestNavigateTo(view, data || {});
-	}
+    var views = gadgets.views.getSupportedViews();
+    for (var type in views) {
+      var view = views[type];
+      if (view.getName() === name)
+        return gadgets.views.requestNavigateTo(view, data || {});
+    }
   };
 
   $.views = function() {
-	var names = [];
-	var views = gadgets.views.getSupportedViews();
-	for (var type in views) {
-	  var name = views[type].getName();
-      if (jQuery.inArray(name, names) === -1)
-	      names.push(name);
-	}
-	return names;
+    var names = [];
+    var views = gadgets.views.getSupportedViews();
+    for (var type in views) {
+      var name = views[type].getName();
+        if (jQuery.inArray(name, names) === -1)
+          names.push(name);
+    }
+    return names;
   }
   
 })(jQuery);

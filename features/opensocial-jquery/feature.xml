@@ -15,6 +15,7 @@ http://www.gnu.org/licenses/gpl.html
 <name>opensocial-jquery</name>
 <dependency>dynamic-height</dependency>
 <dependency>settitle</dependency>
+<dependency>views</dependency>
 <gadget>
 <script src="jquery.js" />
 <script src="jquery.gadgets.js" />

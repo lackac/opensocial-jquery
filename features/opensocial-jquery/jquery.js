@@ -1,6 +1,6 @@
 (function(){
 /**
- * opensocial-jquery 0.1.0
+ * opensocial-jquery 0.2.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Copyright(C) 2008 LEARNING RESOURCE LAB
@@ -2296,16 +2296,18 @@ jQuery.fn.extend({
 		// Attach the listeners
 		bindReady();
 
+		var data = gadgets.views && gadgets.views.getParams() || {};
+
 		// If the DOM is already ready
 		if ( jQuery.isReady )
 			// Execute the function immediately
-			fn.call( document, jQuery, gadgets.views.getParams() );
+			fn.call( document, jQuery, data );
 
 		// Otherwise, remember the function for later
 		else
 			// Add the function to the wait list
 //			jQuery.readyList.push( function() { return fn.call(this, jQuery); } );
-			jQuery.readyList.push( function() { return fn.call( this, jQuery, gadgets.views.getParams() ); } );
+			jQuery.readyList.push( function() { return fn.call( this, jQuery, data ); } );
 
 		return this;
 	}

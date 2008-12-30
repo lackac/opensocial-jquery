@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<!--
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
+<ModulePrefs title="Picasa Web Albums - samples - opensocial-jquery">
+<Require feature="dynamic-height" />
+<Require feature="settitle" />
+<Require feature="views" />
+</ModulePrefs>
+<UserPref name="tag" default_value="dog" required="true" />
+
+<Content type="html" view="profile,home"><![CDATA[
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.gadgets.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+
+  // Retrieves a preference as a string.
+  var tag = $.pref('tag');
+
+  // Sets the gadget title.
+  $(window).title(tag + ' - Picasa Web Albums');
+  
+  // Fetches content from the Picasa Web Albums that content into the callback function.
+  var url = 'http://picasaweb.google.com/data/feed/api/all';
+  var data = { q: tag, 'max-results': 21, alt: 'json' };
+
+  $.getJSON(url, data, function(json) {
+
+	$.each(json.feed.entry, function() {
+
+	  var thumbnail = this.media$group.media$thumbnail[1].url;
+	  var img = $('<img />')
+	    .attr('src', thumbnail);
+
+	  var url = thumbnail.replace(/\/s[\d]+\//, '/s400/');
+	  var a = $('<a target="_blank" />')
+	    .attr('href', url)
+	    .click(function() {
+
+		  // Attempts to navigate to this gadget in a different view. 
+		  $.view('canvas', { url: url });
+		  return false;
+		})
+		.append(img)
+		.appendTo('#photos');
+
+	});
+
+    // Adjusts the gadget height.
+	$(window).adjustHeight();
+  });
+
+});
+</script>
+<style type="text/css">
+<!--
+#photos img {
+  border: 0;
+  margin: 2px;
+  width: 80px;
+  height: 60px;
+}
+-->
+</style>
+<div id="photos"></div>
+]]></Content>
+
+<Content type="html" view="canvas"><![CDATA[
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.gadgets.js"></script>
+<script type="text/javascript">
+jQuery(function($, data) {
+
+  // Returns the parameters passed into this gadget for this view.
+  var photoUrl = data.url;
+  var photo = $('#photo img');
+
+  // Retrieves a preference as a string.
+  var tag = $.pref('tag');
+
+  // Sets the gadget title.
+  $(window).title(tag + ' - Picasa Web Albums');
+
+  // Fetches content from the Picasa Web Albums that content into the callback function.
+  var url = 'http://picasaweb.google.com/data/feed/api/all';
+  var data = { q: tag, 'max-results': 21, alt: 'json' };
+
+  $.getJSON(url, data, function(json) {
+
+	$.each(json.feed.entry, function() {
+
+	  var thumbnail = this.media$group.media$thumbnail[1].url;
+	  var img = $('<img />')
+	    .attr('src', thumbnail);
+
+	  var url = thumbnail.replace(/\/s[\d]+\//, '/s400/');
+	  var a = $('<a target="_blank" />')
+	    .attr('href', url)
+	    .click(function() {
+		  photo.attr('src', url).show();
+  		  return false;
+		})
+		.append(img)
+		.appendTo('#photos');
+	
+	  if (url === photoUrl)
+	    a.trigger('click');
+
+	});
+
+    if (photo.is(':hidden'))
+	  $('#photos a:first').trigger('click');
+
+    // Adjusts the gadget height.
+	$(window).adjustHeight();
+  });
+
+});
+</script>
+<style type="text/css">
+<!--
+#photo img {
+  width: 400px;
+  height: 300px;
+}
+#photos {
+  width: 257px;
+}
+#photos img {
+  border: 0;
+  margin: 2px;
+  width: 80px;
+  height: 60px;
+}
+-->
+</style>
+<table>
+<tr>
+<td id="photos"></td>
+<td id="photo"><img style="display:none;" /></td>
+</tr>
+</table>
+]]></Content>
+
+</Module>
