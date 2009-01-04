@@ -1,6 +1,6 @@
 (function(){
 /**
- * opensocial-jquery 0.2.0
+ * opensocial-jquery 0.3.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Copyright(C) 2008 LEARNING RESOURCE LAB

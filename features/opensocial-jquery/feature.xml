@@ -16,6 +16,7 @@ http://www.gnu.org/licenses/gpl.html
 <dependency>dynamic-height</dependency>
 <dependency>settitle</dependency>
 <dependency>views</dependency>
+<dependency>setprefs</dependency>
 <gadget>
 <script src="jquery.js" />
 <script src="jquery.gadgets.js" />
