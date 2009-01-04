@@ -12,24 +12,32 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-  var params = gadgets.util.getUrlParameters();
-
   /**
    * Environment
    */
+
+  var params = gadgets.util.getUrlParameters();
   var synd = params['synd'] || '';
+  var parent = params['parent'] || '';
   
   // container
   $.container = {
     ig: /ig/.test(synd),
     orkut: /orkut/.test(synd),
     hi5: /hi5/.test(synd),
-    sandbox: /sandbox/.test(synd) || /sandbox/.test(location.host)
+    sandbox: /sandbox/.test(synd) ||
+      /sandbox/.test(parent) ||
+      /sandbox/.test(location.host)
   };
+
+  for (var key in $.container)
+    if ($.container[key])
+      $('html').addClass(key);
 
   /**
    * Preference
    */
+
   var prefs = new gadgets.Prefs();
   
   // pref

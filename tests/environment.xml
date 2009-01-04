@@ -20,11 +20,22 @@ http://www.gnu.org/licenses/gpl.html
 <script type="text/javascript">
 jQuery(function($) {
 
-  console.info($.container);
+  console.info($.container.ig);
+  console.info($.container.orkut);
+  console.info($.container.hi5);
+  console.info($.container.sandbox);
+
+  console.info($('html')[0].className);
 
 });
 
 //gadgets.ut
 </script>
+<style type="text/css">
+.ig div {
+  background-color: black
+}
+</style>
+<div>ig</div>
 ]]></Content>
 </Module>
