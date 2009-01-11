@@ -2712,56 +2712,7 @@ jQuery.extend({
 //		// Create the request object; Microsoft failed to properly
 //		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
 //		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
-
-		var _xhr = function() {
-			this.readyState = 0; // UNSENT
-		};
-		_xhr.prototype = {
-			open: function(type, url, async, username, password) {
-				this.readyState = 1; // OPENED
-				this.type = type;
-				this.url = url;
-				this.requestHeaders = {};
-				this.responseHeaders = {};
-			},
-			send: function(data) {
-				var self = this;
-				var opt_params = [];
-				opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
-				opt_params[gadgets.io.RequestParameters.HEADERS] = self.requestHeaders;
-				opt_params[gadgets.io.RequestParameters.CONTENT_TYPE] =
-				  s.dataType === 'xml' && gadgets.io.ContentType.DOM ||
-				  s.dataType === 'feed' && gadgets.io.ContentType.FEED ||
-				  gadgets.io.ContentType.TEXT;
-				if (data)
-					opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
-				gadgets.io.makeRequest(this.url, function(res) {
-					self.readyState = 4; // DONE
-					if (res.errors.length > 0) {
-						self.status = 400;
-						self.responseText = res.errors.join(' ');
-					} else {
-						self.status = res.rc;
-						self.responseHeaders = res.headers;
-						self.responseText = res.text;
-						if (s.dataType === 'xml')
-							self.responseXML = res.data;
-						else if (s.dataType === 'feed')
-						self.responseFeed = res.data;
-					}
-				}, opt_params);
-			},
-			abort: function() {
-				this.readyState = 0; // UNSENT
-			},
-			setRequestHeader: function(header, value) {
-			  this.requestHeaders[header] = value;
-			},
-			getResponseHeader: function(header) {
-			  return this.responseHeaders[header];
-			}
-		};
-		var xhr = new _xhr();
+    var xhr = new jQuery._xhr.factory(type, s.url);
 
 		// Open the socket
 		// Passing null username, generates a login popup on Opera (#2865)
@@ -2875,7 +2826,8 @@ jQuery.extend({
 
 		// Send the data
 		try {
-			xhr.send(s.data);
+//			xhr.send(s.data);
+			xhr.send(s.data, s.dataType);
 		} catch(e) {
 			jQuery.handleError(s, xhr, null, e);
 		}
