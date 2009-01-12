@@ -18,8 +18,8 @@ http://www.gnu.org/licenses/gpl.html
 </ModulePrefs>
 <Content type="html"><![CDATA[
 <script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.js"></script>
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.gadgets.js">
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.opensocial.js">
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.gadgets.js"></script>
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.opensocial.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
   
