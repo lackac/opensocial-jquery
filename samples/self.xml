@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<!--
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
+<ModulePrefs title="Self - samples - opensocial-jquery">
+<Require feature="dynamic-height" />
+<Require feature="opensocial-0.8" />
+</ModulePrefs>
+<Content type="html"><![CDATA[
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.js"></script>
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.gadgets.js">
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.opensocial.js">
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.js"></script>
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.gadgets.js"></script>
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/jquery.opensocial.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+  
+  var url = '/people/@owner/@self';
+  var data = {};
+
+  $.getData(url, data, function(data, status) {
+    var person = data[0];
+	
+	if (person.thumbnailUrl)
+	  $('.person .thumbnail img')
+	    .attr('src', person.thumbnailUrl)
+	    .show();
+	
+	$('.person .id')
+	  .text(person.id);
+	
+	$('.person .displayName')
+	  .text(person.displayName);
+  
+    $(window).adjustHeight();
+  });
+
+});
+</script>
+<style type="text/css">
+<!--
+dl dt, dl dd{
+  margin: 0;
+}
+-->
+</style>
+<div id="people">
+<dl class="person">
+<dt class="thumbnail"><img style="display:none;" /></dt>
+<dd class="id"></dd>
+<dd class="displayName"></dd>
+</dl>
+</div>
+]]></Content>
+</Module>

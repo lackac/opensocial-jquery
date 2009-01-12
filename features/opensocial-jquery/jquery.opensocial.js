@@ -102,7 +102,7 @@
 
       var params = {
         first: data.startIndex || 0,
-        max: data.count || 20
+        max: parseInt(data.count, 10) || 20
       };
 
       var req = opensocial.newDataRequest();
