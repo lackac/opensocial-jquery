@@ -1,6 +1,6 @@
 (function($) {
 /**
- * opensocial-jquery 0.3.0
+ * opensocial-jquery 0.4.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Copyright(C) 2008 LEARNING RESOURCE LAB
@@ -13,19 +13,46 @@
  */
 
   /**
-   * _xhr
+   * Environment
    */
-  var _xhr = $._xhr = function() {
+
+  var params = gadgets.util.getUrlParameters();
+  var synd = params['synd'] || '';
+  var parent = params['parent'] || '';
+  var v = params['v'] || '';
+  
+  // container
+  $.container = {
+    igoogle: /ig/.test(synd),
+    orkut: /orkut/.test(synd),
+    hi5: /hi5/.test(synd),
+    myspace: /msappspace/.test(location.host),
+    sandbox: /sandbox/.test(synd) ||
+      /sandbox/.test(parent) ||
+      /sandbox/.test(location.host) ||
+      /msappspace/.test(location.host) && /dev/.test(v)
+  };
+
+  for (var key in $.container)
+    if ($.container[key])
+      $('html').addClass(key);
+
+  /**
+   * IO
+   */
+
+  // _xhr
+  $._xhr = function() {
     this.initialize();
   };
   
   // factory
-  _xhr.factory = function(type, url) {
-     return new _xhr();
+  $._xhr.factory = function(type, url) {
+     return new $._xhr();
   };
   
   // prototype
-  _xhr.prototype = {
+  $._xhr.prototype = {
     
     // initialize
     initialize: function() {
@@ -90,28 +117,6 @@
       return this.responseHeaders[header];
     }
   };
-
-  /**
-   * Environment
-   */
-
-  var params = gadgets.util.getUrlParameters();
-  var synd = params['synd'] || '';
-  var parent = params['parent'] || '';
-  
-  // container
-  $.container = {
-    ig: /ig/.test(synd),
-    orkut: /orkut/.test(synd),
-    hi5: /hi5/.test(synd),
-    sandbox: /sandbox/.test(synd) ||
-      /sandbox/.test(parent) ||
-      /sandbox/.test(location.host)
-  };
-
-  for (var key in $.container)
-    if ($.container[key])
-      $('html').addClass(key);
 
   /**
    * Preference

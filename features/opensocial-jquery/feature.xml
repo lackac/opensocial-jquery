@@ -17,8 +17,10 @@ http://www.gnu.org/licenses/gpl.html
 <dependency>settitle</dependency>
 <dependency>views</dependency>
 <dependency>setprefs</dependency>
+<dependency>opensocial-0.8</dependency>
 <gadget>
 <script src="jquery.js" />
 <script src="jquery.gadgets.js" />
+<script src="jquery.opensocial.js" />
 </gadget>
 </feature>

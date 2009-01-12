@@ -1,6 +1,6 @@
 (function($) {
 /**
- * opensocial-jquery 0.3.0
+ * opensocial-jquery 0.4.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Copyright(C) 2008 LEARNING RESOURCE LAB
@@ -21,6 +21,16 @@
   /**
    * DataRequest
    */
+
+  // _factory
+  $._xhr._factory = $._xhr.factory;
+
+  // factory
+  $._xhr.factory = function(type, url) {
+     if (type === 'GET' && url.indexOf('/people') == 0)
+        return new $._xhr.getPeople();
+     return $._xhr._factory(type, url);
+  };
 
   // selector
   var selector = {
@@ -54,31 +64,21 @@
       for (key in obj.fields_)
         ret[key] = filter(obj.fields_[key]);
     else if (obj && obj.constructor === Array)
-      ret = jQuery.map(obj, function(val) { return filter(val); });
+      ret = $.map(obj, function(val) { return filter(val); });
     else
       ret = obj;
     return ret;
   };
 
-  // _factory
-  $._xhr._factory = $._xhr.factory;
-
-  // factory
-  $._xhr.factory = function(type, url) {
-     if (type == 'GET' && url.indexOf('/people') == 0)
-        return new $._xhr.getPeople();
-     return $._xhr._factory(type, url);
-  };
-
   /**
    * getPeople
    */
-  var _xhr = $._xhr.getPeople = function() {
+  $._xhr.getPeople = function() {
     this.initialize();
   };
   
   // prototype
-  $.extend(_xhr.prototype, $._xhr.prototype, {
+  $.extend($._xhr.getPeople.prototype, $._xhr.prototype, {
   
     // send
     send: function(data, dataType) {
@@ -109,12 +109,12 @@
       req.add(req.newFetchPeopleRequest(idspec, params), service);
       req.send(function(res) {
         self.readyState = 4; // DONE
-        
+
         var item = res.get(service);
 
         if (res.hadError()) {
           self.status = 400;
-          self.responseText = res.getErrorMessage();
+          self.responseText = item.getErrorMessage();
 
         } else {
           var collection = item.getData();
@@ -126,10 +126,15 @@
           people.totalResults = collection.getTotalSize();
 
           self.status = 200;
-          self.responseText = people;
+          self.responseData = people;
         }
       });
     }
   });
 
+  // getData
+  $.getData = function(url, data, callback) {
+    return jQuery.get(url, data, callback, 'data');
+  };
+  
 })(jQuery);

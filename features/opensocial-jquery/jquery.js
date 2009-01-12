@@ -1,6 +1,6 @@
 (function(){
 /**
- * opensocial-jquery 0.3.0
+ * opensocial-jquery 0.4.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Copyright(C) 2008 LEARNING RESOURCE LAB
@@ -2903,15 +2903,17 @@ jQuery.extend({
 		var ct = xhr.getResponseHeader("content-type"),
 			xml = type == "xml" || !type && ct && ct.indexOf("xml") >= 0,
 //			data = xml ? xhr.responseXML : xhr.responseText;
-			feed = type === 'feed',
-			data = xml && xhr.responseXML || feed && xhr.responseFeed || xhr.responseText;
+			data = xml && xhr.responseXML ||
+				type === 'feed' && xhr.responseFeed ||
+				type === 'data' && xhr.responseData ||
+				xhr.responseText;
 
 		if ( xml && data.documentElement.tagName == "parsererror" )
 			throw "parsererror";
 
-		if ( feed && !data )
+		if ( type === 'feed' && !data )
 			throw "parsererror";
-			
+		
 		// Allow a pre-filtering function to sanitize the response
 		if( filter )
 			data = filter( data, type );
