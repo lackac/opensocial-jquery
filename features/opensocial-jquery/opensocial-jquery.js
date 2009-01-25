@@ -3931,7 +3931,14 @@ jQuery.each([ "Height", "Width" ], function(i, name){
    * DataRequest
    */
 
-  // selector
+  $.getData = function(url, data, callback) {
+    return jQuery.get(url, data, callback, 'data');
+  };
+
+  $.postData = function(url, data, callback) {
+    return jQuery.post(url, data, callback, 'data');
+  };
+
   var selector = {
     '@me': 'VIEWER',
     '@viewer': 'VIEWER',
@@ -3941,22 +3948,48 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     '@all': 'ALL'
   };
 
-  // parse
-  var parse = function(data) {
-    var ret = {};
-    $.each(data.split('&'), function(i, pair) {
-       var key = pair.replace(/\+/g, ' '), val = '';
-       var pos = key.indexOf('=');
-       if (pos != -1) {
-          val = key.substring(pos + 1);
-          key = key.substring(0, pos);
-       }
-       ret[decodeURIComponent(key)] = decodeURIComponent(val);
+  var parseUrl = function(url) {
+    var ret = {}, data = '';
+
+    var pos = url.indexOf('?');
+    if (pos != -1) {
+      data = url.substring(pos + 1);
+      url = url.substring(0, pos);
+    }
+
+    var url = url.split('/');
+
+    if (url[2]) ret.userId = url[2];
+    if (url[3]) ret.groupId = url[3];
+    if (url[4]) ret.appId = url[4];
+
+    var data = data.split('&');
+    var param = {};
+
+    $.each(data, function(i, pair) {
+      var key = pair.replace(/\+/g, ' '), val = '';
+      var pos = key.indexOf('=');
+      if (pos != -1) {
+        val = key.substring(pos + 1);
+        key = key.substring(0, pos);
+      }
+      param[decodeURIComponent(key)] = decodeURIComponent(val);
     });
+
+    if (param.fields) {
+      ret.fields = param.fields.split(',');
+      ret.fields = $.grep(ret.fields, function(val) { return val != ''; });
+    }
+    if (param.startIndex) ret.startIndex = parseInt(param.startIndex, 10);
+    if (param.count) ret.count = parseInt(param.count, 10);
+    if (param.sortBy) ret.sortBy = param.sortBy;
+    if (param.filterBy) ret.filterBy = param.filterBy;
+    if (param.networkDistance)
+      ret.networkDistance = parseInt(param.networkDistance. 10);
+    
     return ret;
   };
 
-  // filter
   var filter = function(obj) {
     var ret = {};
     if (obj && obj.fields_)
@@ -3972,6 +4005,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   /**
    * getPeople
    */
+
   $._xhr.getPeople = function() {
     this.initialize();
   };
@@ -3981,35 +4015,28 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   
     // send
     send: function(data, dataType) {
-      var self = this;
-      
-      var url = self.url;
-      var pos = url.indexOf('?');
-      if (pos != -1) {
-        data = (data ? data + '&' : '') + url.substring(pos + 1);
-        url = url.substring(0, pos);
-      }
-      data = data ? parse(data) : {};
-      
-      var path = url.split('/');
-      var service = path[1];
+      var self = this, query = parseUrl(self.url);
 
       var idspec = opensocial.newIdSpec({
-        userId: selector[path[2] || ''],
-        groupId: selector[path[3] || '@self']
+        userId: selector[query.userId || '@me'] || query.userId,
+        groupId: selector[query.groupId || '@self'] || query.groupId
       });
 
       var params = {
-        first: data.startIndex || 0,
-        max: parseInt(data.count, 10) || 20
+        first: query.startIndex || 0,
+        max: query.count || 20,
+        profileDetail: query.fields
       };
 
+      if (query.appId === '@app')
+        params.filter = 'hasApp';
+
       var req = opensocial.newDataRequest();
-      req.add(req.newFetchPeopleRequest(idspec, params), service);
+      req.add(req.newFetchPeopleRequest(idspec, params), 'data');
       req.send(function(res) {
         self.readyState = 4; // DONE
 
-        var item = res.get(service);
+        var item = res.get('data');
 
         if (res.hadError()) {
           self.status = 400;
@@ -4034,8 +4061,13 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   $.ajaxSettings.xhr.addRoute('GET', '/people/', $._xhr.getPeople);
 
   /**
+   * getAppData
+   */
+
+  /**
    * postAppData
    */
+  
   $._xhr.postAppData = function() {
     this.initialize();
   };
@@ -4085,14 +4117,4 @@ console.info(items);
     }
   });
 
-  // getData
-  $.getData = function(url, data, callback) {
-    return jQuery.get(url, data, callback, 'data');
-  };
-
-  // postData
-  $.postData = function(url, data, callback) {
-    return jQuery.post(url, data, callback, 'data');
-  };
-  
 })(jQuery);
