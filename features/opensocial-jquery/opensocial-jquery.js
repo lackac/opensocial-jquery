@@ -3948,6 +3948,13 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     '@all': 'ALL'
   };
 
+  var filter = {
+    '@all': 'all',
+    '@app': 'hasApp'
+    //'@topFriends': 'topFriends',
+    //'@isFriendsWith': 'isFriendsWith'
+  };
+
   var parseUrl = function(url) {
     var ret = {}, data = '';
 
@@ -3985,18 +3992,18 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     if (param.sortBy) ret.sortBy = param.sortBy;
     if (param.filterBy) ret.filterBy = param.filterBy;
     if (param.networkDistance)
-      ret.networkDistance = parseInt(param.networkDistance. 10);
+      ret.networkDistance = parseInt(param.networkDistance, 10);
     
     return ret;
   };
 
-  var filter = function(obj) {
+  var objectify = function(obj) {
     var ret = {};
     if (obj && obj.fields_)
       for (key in obj.fields_)
-        ret[key] = filter(obj.fields_[key]);
+        ret[key] = objectify(obj.fields_[key]);
     else if (obj && obj.constructor === Array)
-      ret = $.map(obj, function(val) { return filter(val); });
+      ret = $.map(obj, function(val) { return objectify(val); });
     else
       ret = obj;
     return ret;
@@ -4017,44 +4024,89 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     send: function(data, dataType) {
       var self = this, query = parseUrl(self.url);
 
+      if (!query.userId) query.userId = '@me';
+      if (!query.groupId) query.groupId = '@self';
+      
       var idspec = opensocial.newIdSpec({
-        userId: selector[query.userId || '@me'] || query.userId,
-        groupId: selector[query.groupId || '@self'] || query.groupId
+        userId: selector[query.userId] || query.userId,
+        groupId: selector[query.groupId] || query.groupId,
+        networkDistance: query.networkDistance
       });
 
       var params = {
         first: query.startIndex || 0,
-        max: query.count || 20,
-        profileDetail: query.fields
+        max: query.count || 20
       };
 
-      if (query.appId === '@app')
-        params.filter = 'hasApp';
+      if (query.appId)
+        params.filter = filter[query.appId] || query.appId;
 
-      var req = opensocial.newDataRequest();
-      req.add(req.newFetchPeopleRequest(idspec, params), 'data');
-      req.send(function(res) {
-        self.readyState = 4; // DONE
+      if (query.fields) params.profileDetail = query.fields;
+      if (query.sortBy) params.sortOrder = query.sortBy;
+      if (query.filterBy) params.filter = query.filterBy;
 
-        var item = res.get('data');
+      if ($.container.myspace)
+        params.first++;
 
-        if (res.hadError()) {
-          self.status = 400;
-          self.responseText = item.getErrorMessage();
+      if (query.groupId == '@self') {
+        
+        var req = opensocial.newDataRequest();
+        req.add(req.newFetchPersonRequest('VIEWER', params), 'data');
+        req.send(function(res) {
+          self.readyState = 4; // DONE
 
-        } else {
-          var collection = item.getData();
-          var people = $.map(collection.asArray(), function(person) {
-            return filter(person);
-          });
-          people.startIndex = collection.getOffset();
-          people.itemsPerPage = params.max;
-          people.totalResults = collection.getTotalSize();
+          var item = res.get('data');
 
-          self.status = 200;
-          self.responseData = people;
-        }
-      });
+          if (res.hadError()) {
+            self.status = 400;
+            self.responseText = item.getErrorMessage();
+
+          } else {
+            var people = [ objectify(item.getData()) ];
+            people.startIndex = params.first;
+            people.itemsPerPage = params.max;
+            people.totalResults = people.length;
+            
+            if ($.container.myspace)
+              people.startIndex--;
+
+            self.status = 200;
+            self.responseData = people;
+          }
+        });
+      
+      } else {
+
+        var req = opensocial.newDataRequest();
+        req.add(req.newFetchPeopleRequest(idspec, params), 'data');
+        req.send(function(res) {
+          self.readyState = 4; // DONE
+
+          var item = res.get('data');
+
+          if (res.hadError()) {
+            self.status = 400;
+            self.responseText = item.getErrorMessage();
+
+          } else {
+            var collection = item.getData();
+            var people = $.map(collection.asArray(), function(person) {
+              return objectify(person);
+            });
+            people.startIndex = params.first; // collection.getOffset();
+            people.itemsPerPage = params.max;
+            people.totalResults = collection.getTotalSize();
+
+            if ($.container.myspace)
+              people.startIndex--;
+
+            self.status = 200;
+            self.responseData = people;
+          }
+        });
+      
+      }
+
     }
   });
 
