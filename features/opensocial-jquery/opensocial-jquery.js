@@ -3997,6 +3997,30 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     return ret;
   };
 
+  var identify = function(query) {
+    
+    var userId = query.userId || '@me';
+    userId = selector[userId] || userId;
+    
+    var groupId = query.groupId || '@self';
+    groupId = selector[groupId] || groupId;
+    
+    var networkDistance = query.networkDistance;
+
+    var id = userId + (groupId == selector['@self'] ? '' : '_' + groupId);
+
+    var idspec = opensocial.newIdSpec({
+      userId: userId, groupId: groupId, networkDistance: networkDistance
+    });
+    idspec.userId = userId;
+    idspec.groupId = groupId;
+    idspec.networkDistance = networkDistance;
+    idspec.id = userId + (groupId == selector['@self'] ? '' : '_' + groupId);
+    idspec.self = groupId == selector['@self'];
+
+    return idspec;
+  }
+
   var objectify = function(obj) {
     var ret = {};
     if (obj && obj.fields_)
@@ -4009,6 +4033,29 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     return ret;
   };
 
+  var errorify = function(res) {
+     if (!res.hadError())
+       return false;
+     
+     var status;
+     var statusText;
+     var reason;
+
+     var items = res.responseItems_;
+     $.each(items, function(key, item) {
+       if (item.hadError()) {
+          statusText = item.getErrorCode();
+          reason = item.getErrorMessage();
+       }
+     });
+
+     return {
+       status: status || 500,
+       statusText: statusText || 'internalError',
+       reason: reason || ''
+     }
+  }
+
   /**
    * getPeople
    */
@@ -4017,21 +4064,12 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     this.initialize();
   };
   
-  // prototype
   $.extend($._xhr.getPeople.prototype, $._xhr.prototype, {
   
-    // send
     send: function(data, dataType) {
       var self = this, query = parseUrl(self.url);
-
-      if (!query.userId) query.userId = '@me';
-      if (!query.groupId) query.groupId = '@self';
       
-      var idspec = opensocial.newIdSpec({
-        userId: selector[query.userId] || query.userId,
-        groupId: selector[query.groupId] || query.groupId,
-        networkDistance: query.networkDistance
-      });
+      var idspec = identify(query);
 
       var params = {
         first: query.startIndex || 0,
@@ -4048,20 +4086,22 @@ jQuery.each([ "Height", "Width" ], function(i, name){
       if ($.container.myspace)
         params.first++;
 
-      if (query.groupId == '@self') {
+      if (idspec.self) {
         
         var req = opensocial.newDataRequest();
-        req.add(req.newFetchPersonRequest('VIEWER', params), 'data');
+        req.add(req.newFetchPersonRequest(idspec.id, params), 'data');
         req.send(function(res) {
           self.readyState = 4; // DONE
 
-          var item = res.get('data');
-
-          if (res.hadError()) {
-            self.status = 400;
-            self.responseText = item.getErrorMessage();
+          var error = errorify(res);
+          if (error) {
+            self.status = error.status;
+            self.statusText = error.statusText;
+            self.responseText = error.reason;
 
           } else {
+            var item = res.get('data');
+
             var people = [ objectify(item.getData()) ];
             people.startIndex = params.first;
             people.itemsPerPage = params.max;
@@ -4071,6 +4111,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
               people.startIndex--;
 
             self.status = 200;
+            self.statusText = 'OK';
             self.responseData = people;
           }
         });
@@ -4082,14 +4123,16 @@ jQuery.each([ "Height", "Width" ], function(i, name){
         req.send(function(res) {
           self.readyState = 4; // DONE
 
-          var item = res.get('data');
-
-          if (res.hadError()) {
-            self.status = 400;
-            self.responseText = item.getErrorMessage();
+          var error = errorify(res);
+          if (error) {
+            self.status = error.status;
+            self.statusText = error.statusText;
+            self.responseText = error.reason;
 
           } else {
+            var item = res.get('data');
             var collection = item.getData();
+
             var people = $.map(collection.asArray(), function(person) {
               return objectify(person);
             });
@@ -4101,6 +4144,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
               people.startIndex--;
 
             self.status = 200;
+            self.statusText = 'OK';
             self.responseData = people;
           }
         });
@@ -4116,6 +4160,51 @@ jQuery.each([ "Height", "Width" ], function(i, name){
    * getAppData
    */
 
+  $._xhr.getAppData = function() {
+    this.initialize();
+  };
+  
+  $.extend($._xhr.getAppData.prototype, $._xhr.prototype, {
+  
+    send: function(data, dataType) {
+      var self = this, query = parseUrl(self.url);
+
+      var idspec = identify(query);
+
+      var keys = query.fields || [];
+      var params = { escapeType: 'none' };
+    
+      var req = opensocial.newDataRequest();
+      req.add(req.newFetchPersonAppDataRequest(idspec, keys, params), 'data');
+      req.send(function(res) {
+        self.readyState = 4; // DONE
+
+        var error = errorify(res);
+        if (error) {
+          self.status = error.status;
+          self.statusText = error.statusText;
+          self.responseText = error.reason;
+
+        } else {
+          var item = res.get('data');
+          
+          var appdata = item.getData();
+          for (userId in appdata) {
+            var data = appdata[userId];
+            for (key in data)
+              data[key] = gadgets.json.parse(data[key]);
+          }
+
+          self.status = 200;
+          self.statusText = 'OK';
+          self.responseData = appdata;
+        }
+      });
+    }
+  });
+
+  $.ajaxSettings.xhr.addRoute('GET', '/appdata/', $._xhr.getAppData);
+  
   /**
    * postAppData
    */
@@ -4124,49 +4213,42 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     this.initialize();
   };
   
-  // prototype
   $.extend($._xhr.postAppData.prototype, $._xhr.prototype, {
   
-    // send
     send: function(data, dataType) {
-// /person/@me/data
-console.info(data);
-      var self = this;
-      
-      var url = self.url;
-      var path = url.split('/');
-      var id = selector[path[2]] || path[2];
+      var self = this, query = parseUrl(self.url);
 
-      var keys = [];
-      for (key in data)
-        keys.push(key);
+      var idspec = identify(query);
+
+      var keys = query.fields || [];
+      if (keys.length == 0)
+        for (key in data) keys.push(key);
 
       var req = opensocial.newDataRequest();
 
       $.each(keys, function(i, key) {
-        var appdata = req.newUpdatePersonAppDataRequest(
-          id, key, gadgets.json.stringify(data[key])
-        );
-        req.add(appdata, key);
+        req.add(req.newUpdatePersonAppDataRequest(
+          idspec.id, key, gadgets.json.stringify(data[key]), key
+        ));
       });
 
       req.send(function(res) {
         self.readyState = 4; // DONE
 
-        var items = $.map(keys, function(key) {
-          return res.get(key);
-        });
-console.info(items);
-
-        if (res.hadError()) {
-          self.status = 400;
-          self.responseText = res.getErrorMessage();
+        var error = errorify(res);
+        if (error) {
+          self.status = error.status;
+          self.statusText = error.statusText;
+          self.responseText = error.reason;
         } else {
           self.status = 200;
+          self.statusText = 'OK';
           self.responseData = {};
         }
       });
     }
   });
+
+  $.ajaxSettings.xhr.addRoute('POST', '/appdata/', $._xhr.postAppData);
 
 })(jQuery);
