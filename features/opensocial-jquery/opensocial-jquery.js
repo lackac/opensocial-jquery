@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 0.5.0 RC1
+ * opensocial-jquery 0.5.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3955,6 +3955,16 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     //'@isFriendsWith': 'isFriendsWith'
   };
 
+  var code = {
+    ok: 200,
+    notImplemented: 501,
+    unauthorized: 401,
+    forbidden: 403,
+    badRequest: 400,
+    internalError: 500,
+    limitExceeded: 417
+  };
+
   var parseUrl = function(url) {
     var ret = {}, data = '';
 
@@ -4015,7 +4025,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     idspec.userId = userId;
     idspec.groupId = groupId;
     idspec.networkDistance = networkDistance;
-    idspec.id = userId + (groupId == selector['@self'] ? '' : '_' + groupId);
+    idspec.id = id;
     idspec.self = groupId == selector['@self'];
 
     return idspec;
@@ -4039,18 +4049,19 @@ jQuery.each([ "Height", "Width" ], function(i, name){
      
      var status;
      var statusText;
-     var reason;
+     var reason = res.getErrorMessage();
 
      var items = res.responseItems_;
      $.each(items, function(key, item) {
        if (item.hadError()) {
+          status = code[item.getErrorCode()];
           statusText = item.getErrorCode();
           reason = item.getErrorMessage();
        }
      });
 
      return {
-       status: status || 500,
+       status: status || code['internalError'],
        statusText: statusText || 'internalError',
        reason: reason || ''
      }
@@ -4110,8 +4121,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
             if ($.container.myspace)
               people.startIndex--;
 
-            self.status = 200;
-            self.statusText = 'OK';
+            self.status = code['ok'];
+            self.statusText = 'ok';
             self.responseData = people;
           }
         });
@@ -4143,8 +4154,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
             if ($.container.myspace)
               people.startIndex--;
 
-            self.status = 200;
-            self.statusText = 'OK';
+            self.status = code['ok'];
+            self.statusText = 'ok';
             self.responseData = people;
           }
         });
@@ -4195,8 +4206,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
               data[key] = gadgets.json.parse(data[key]);
           }
 
-          self.status = 200;
-          self.statusText = 'OK';
+          self.status = code['ok'];
+          self.statusText = 'ok';
           self.responseData = appdata;
         }
       });
@@ -4241,8 +4252,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
           self.statusText = error.statusText;
           self.responseText = error.reason;
         } else {
-          self.status = 200;
-          self.statusText = 'OK';
+          self.status = code['ok'];
+          self.statusText = 'ok';
           self.responseData = {};
         }
       });
