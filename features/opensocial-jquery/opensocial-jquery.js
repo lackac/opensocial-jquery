@@ -4184,7 +4184,10 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 
       var keys = query.fields || [];
       var params = { escapeType: 'none' };
-    
+
+      if ($.container.myspace)
+        if (keys.length == 0) keys = '*';
+
       var req = opensocial.newDataRequest();
       req.add(req.newFetchPersonAppDataRequest(idspec, keys, params), 'data');
       req.send(function(res) {
@@ -4198,12 +4201,13 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 
         } else {
           var item = res.get('data');
-          
+
           var appdata = item.getData();
           for (userId in appdata) {
             var data = appdata[userId];
-            for (key in data)
-              data[key] = gadgets.json.parse(data[key]);
+
+            if (!$.container.myspace)
+              for (key in data) data[key] = gadgets.json.parse(data[key]);
           }
 
           self.status = code['ok'];
@@ -4239,8 +4243,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 
       $.each(keys, function(i, key) {
         req.add(req.newUpdatePersonAppDataRequest(
-          idspec.id, key, gadgets.json.stringify(data[key]), key
-        ));
+          idspec.id, key, gadgets.json.stringify(data[key])
+        ), key);
       });
 
       req.send(function(res) {
