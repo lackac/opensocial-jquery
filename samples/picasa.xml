@@ -20,9 +20,7 @@ http://www.gnu.org/licenses/gpl.html
 <UserPref name="tag" default_value="dog" required="true" />
 
 <Content type="html" view="profile,home"><![CDATA[
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.js"></script>
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.gadgets.js">
-</script>
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.5.0/opensocial-jquery.min.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
 
@@ -36,7 +34,7 @@ jQuery(function($) {
   var url = 'http://picasaweb.google.com/data/feed/api/all';
   var data = { q: tag, 'max-results': 21, alt: 'json' };
 
-  $.getJSON(url, data, function(json) {
+  $.getJSON(url, data).next(function(json) {
 
 	$.each(json.feed.entry, function() {
 
@@ -60,6 +58,9 @@ jQuery(function($) {
 
     // Adjusts the gadget height.
 	$(window).adjustHeight();
+  
+  }).error(function(e) {
+    alert(e+'');
   });
 
 });

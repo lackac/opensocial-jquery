@@ -17,16 +17,14 @@ http://www.gnu.org/licenses/gpl.html
 <Require feature="opensocial-0.8" />
 </ModulePrefs>
 <Content type="html"><![CDATA[
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.js"></script>
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.gadgets.js"></script>
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.4.0/jquery.opensocial.js"></script>
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/0.5.0/opensocial-jquery.min.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
   
   var url = '/people/@owner/@friends';
   var data = { startIndex: 0, count: 3 };
 
-  $.getData(url, data, function(data, status) {
+  $.get(url, data, function(data, status) {
 	
 	var total = data.totalResults;
 	var start = data.startIndex + 1;
@@ -56,7 +54,7 @@ jQuery(function($) {
     });
 
     $(window).adjustHeight();
-  });
+  }, 'data');
 
 });
 </script>
