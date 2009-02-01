@@ -1,0 +1,37 @@
+/**
+ * opensocial-jquery 0.5.0
+ * http://code.google.com/p/opensocial-jquery/
+ *
+ * Enhancing of jQuery.ajax with JSDeferred
+ * http://developmentor.lrlab.to/
+ *
+ * Copyright(C) 2008 LEARNING RESOURCE LAB
+ * http://friendfeed.com/nakajiman
+ * http://hp.submit.ne.jp/d/16750/
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://www.gnu.org/licenses/gpl.html
+ */
+
+/*
+ * jQuery 1.2.6 - New Wave Javascript
+ *
+ * Copyright (c) 2008 John Resig (jquery.com)
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
+ *
+ * $Date: 2008-05-24 14:22:17 -0400 (Sat, 24 May 2008) $
+ * $Rev: 5685 $
+ */
+
+/**
+ * JSDeferred
+ * Copyright (c) 2007 cho45 ( www.lowreal.net )
+ *
+ * http://coderepos.org/share/wiki/JSDeferred
+ *
+ * Version:: 0.2.2
+ * License:: MIT
+ */
+
