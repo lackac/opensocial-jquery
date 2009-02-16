@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 0.5.0
+ * opensocial-jquery 0.5.1
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3862,25 +3862,70 @@ jQuery.each([ "Height", "Width" ], function(i, name){
         dataType === 'xml' && gadgets.io.ContentType.DOM ||
         dataType === 'feed' && gadgets.io.ContentType.FEED ||
         gadgets.io.ContentType.TEXT;
+      
       if (data)
         opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
-      
+
+      if (dataType == 'feed')
+        opt_params['NUM_ENTRIES'] = 10;
+
       gadgets.io.makeRequest(this.url, function(res) {
         self.readyState = 4; // DONE
-      
-        if (res.errors.length > 0) {
-          self.status = 400;
-          self.responseText = res.errors.join(' ');
-        
-        } else {
-          self.status = res.rc;
-          self.responseHeaders = res.headers;
-          self.responseText = res.text;
+
+        if ($.container.myspace) {
+
+          if (res.errorCode) {
+            self.status = 400;
+            //self.statusText = res.errorCode;
+            self.responseText = res.errorMessage;
           
-          if (dataType === 'xml')
-            self.responseXML = res.data;
-          else if (dataType === 'feed')
-            self.responseFeed = res.data;
+          } else {
+            self.status = 200;
+            //self.statusText = 'OK';
+            self.responseHeaders = {};
+            self.responseText = res.text;
+
+            if (dataType == 'xml')
+              self.responseXML = res.data;
+            else if (dataType == 'feed') {
+              res.data.URL = self.url;
+              res.data.Link = res.data.link;
+              res.data.Description = res.data.description;
+              res.data.Author = '';
+              res.data.Entry = $.map(res.data.items, function(item) {
+                item.Link = item.link;
+                item.Title = item.title;
+                item.Date = new Date(item.pubDate).getTime();
+                return item;
+              });
+              self.responseFeed = res.data;
+            }
+          }
+
+        } else {
+
+          if (res.errors.length > 0) {
+            self.status = 400;
+            //self.statusText = '';
+            self.responseText = res.errors.join(' ');
+          
+          } else {
+            self.status = res.rc;
+            //self.statusText = 'OK';
+            self.responseHeaders = res.headers;
+            self.responseText = res.text;
+
+            if (dataType == 'xml')
+              self.responseXML = res.data;
+            else if (dataType == 'feed') {
+              $.each(res.data.Entry, function(i, entry) {
+                if (entry.Date < Math.pow(2, 32))
+                  entry.Date *= 1000;
+              });
+              self.responseFeed = res.data;
+            }
+          }
+        
         }
       }, opt_params);
     },
