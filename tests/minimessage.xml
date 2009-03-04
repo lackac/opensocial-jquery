@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<!--
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
+<ModulePrefs title="MiniMessage - opensocial-jquery">
+<Require feature="minimessage" />
+</ModulePrefs>
+<Content type="html"><![CDATA[
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/opensocial-jquery.min.js?1"></script>
+<script type="text/javascript">
+jQuery(function($) {
+
+  $('<span/>')
+    .text('Are you ready? (1)')
+    .minimessage();
+
+  $('<span>Are you ready? (2)</span>')
+    .minimessage(function() { 
+      console.log('close (2)');
+  });
+
+  $('<span>Are you ready? (3)</span>')
+    .minimessage(function() { 
+      console.log('close (3)');
+	  return false;
+  });
+
+  $('<a href="#"/>')
+    .text('Are you ready? (4)')
+    .click(function() { alert('click'); return false; })
+    .minimessage();
+
+  $('<span/>')
+    .text('Are you ready? (5)')
+    .minimessage();
+
+  $('#google')
+    .minimessage();
+
+});
+
+/*
+//jQuery(function($) {
+gadgets.util.registerOnLoadHandler(function() {
+  var mm = new gadgets.MiniMessage();
+console.log(mm);
+
+  //var span = $('<span>foo</span>');
+  var elm = mm.createDismissibleMessage('span.get(0)', function() {
+    console.log('onclose');
+	return true
+  });
+console.log(elm);
+
+  var span = $('<a href="#" />').click(function() { alert('click'); return false; })
+    .append($('#yahoo'));
+console.log(span[0].parentNode);
+  
+  //var span = $('<b>123</b>');
+
+span.each(function() {
+if (this.parentNode)
+  this.parentNode.removeChild(this);
+  //var s = document.createElement('span');
+  //s.appendChild(this);
+  var t = mm.createDismissibleMessage(this, function() {
+    console.log('onclose');
+	return true
+  });
+});
+
+});
+*/
+</script>
+<span id="google"><a href="http://google.com/" target="_blank">google</a></span>
+]]></Content>
+</Module>

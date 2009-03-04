@@ -61,14 +61,13 @@ jQuery(function($) {
     }
   });
 */
-
+/*
   $.postData('/appdata/@viewer/@self', {
     comment: { text: 'Say Hello!', lastModified: new Date().getTime() },
     feeling: 'well',
     footprint: true
   }, function() {});
-  
-
+*/  
 /*
   $.get('/appdata/@viewer/@self', {}, function(data) {
 	  $.each(data, function(userId, data) {
@@ -80,6 +79,7 @@ jQuery(function($) {
   }, 'data');
 */
 
+/*
   $.getData('/appdata/@owner/@self', {}, function(data) {
 	  $.each(data, function(userId, data) {
 		console.info(userId);
@@ -88,6 +88,37 @@ jQuery(function($) {
         console.info(data.feeling);
         console.info(data.footprint);
 	  });
+  });
+*/
+
+  $.ajax({
+    url: '/people/@viewer/@friends',
+	data: {},
+	dataType: 'data'
+  }).next(function(people) {
+
+      return $.ajax({
+        url: '/appdata/@viewer/@friends',
+	    data: {},
+		dataType: 'data'
+	  }).next(function(data) {
+
+		return $.map(people, function(person) {
+	       if (data[person.id])
+		     person.data = data[person.id];
+		   return person;
+		});
+	  
+	  });
+
+  }).next(function(people) {
+
+    $.each(people, function(i, person) {
+	  console.info(person);
+	});
+
+  }).error(function(e) {
+    console.error(e);
   });
   
   /**

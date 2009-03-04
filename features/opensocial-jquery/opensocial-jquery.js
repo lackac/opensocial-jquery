@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 0.5.1
+ * opensocial-jquery 0.6.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -2555,6 +2555,12 @@ var jsc = now();
 
 jQuery.extend({
 	get: function( url, data, callback, type ) {
+		var off = url.indexOf(" ");
+		if ( off >= 0 ) {
+			var oauth = url.slice(off + 1, url.length);
+			url = url.slice(0, off);
+		}
+
 		// shift arguments if data argument was ommited
 		if ( jQuery.isFunction( data ) ) {
 			callback = data;
@@ -2566,7 +2572,8 @@ jQuery.extend({
 			url: url,
 			data: data,
 			success: callback,
-			dataType: type
+			dataType: type,
+			oauth: oauth
 		});
 	},
 
@@ -2579,6 +2586,12 @@ jQuery.extend({
 	},
 
 	post: function( url, data, callback, type ) {
+		var off = url.indexOf(" ");
+		if ( off >= 0 ) {
+			var oauth = url.slice(off + 1, url.length);
+			url = url.slice(0, off);
+		}
+
 		if ( jQuery.isFunction( data ) ) {
 			callback = data;
 			data = {};
@@ -2589,7 +2602,8 @@ jQuery.extend({
 			url: url,
 			data: data,
 			success: callback,
-			dataType: type
+			dataType: type,
+			oauth: oauth
 		});
 	},
 
@@ -2852,7 +2866,7 @@ jQuery.extend({
 		// Send the data
 		try {
 //			xhr.send(s.data);
-			xhr.send(s.data, s.dataType);
+			xhr.send(s.data, s);
 
 		} catch(e) {
 			jQuery.handleError(s, xhr, null, e);
@@ -3778,6 +3792,10 @@ jQuery.each([ "Height", "Width" ], function(i, name){
       return v.replace(/%7C/g, '|')
     });
   };
+
+  $.msg = function(key) {
+    return prefs.getMsg(key);
+  };
   
   /**
    * Window
@@ -3830,7 +3848,45 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     }
     return names;
   };
-  
+
+  /**
+   * Flash
+   */
+if (gadgets.flash) {
+
+  $.flash = {
+    version: gadgets.flash.getMajorVersion()
+  };
+
+  $.fn.flash = function(url, data) {
+    data = $.extend(true, {}, data);
+    for (var key in data)
+      if (key.toLowerCase() == 'flashvars' && data[key] && typeof(data[key]) != 'string')
+         data[key] = jQuery.param(data[key]);
+    return this.each(function() {
+      gadgets.flash.embedFlash(url, this, $.flash.version, data);
+    });
+  };
+
+}
+
+  /**
+   * MiniMessage
+   */
+if (gadgets.MiniMessage) {
+
+  $.fn.minimessage = function(fn) {
+    return this.each(function(i, n) {
+      if (n.parentNode)
+        n.parentNode.removeChild(n);
+      new gadgets.MiniMessage()
+        .createDismissibleMessage(n, function() {
+          return (fn || function() {}).apply(n) !== false;
+      });
+    });
+  };
+}
+
 })(jQuery);
 (function($) {
 
@@ -3852,8 +3908,9 @@ jQuery.each([ "Height", "Width" ], function(i, name){
       this.responseHeaders = {};
     },
 
-    send: function(data, dataType) {
+    send: function(data, s) {
       var self = this;
+      var dataType = s.dataType;
       
       var opt_params = [];
       opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
@@ -3865,6 +3922,10 @@ jQuery.each([ "Height", "Width" ], function(i, name){
       
       if (data)
         opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
+
+      if (s.oauth == 'signed')
+        opt_params[gadgets.io.RequestParameters.AUTHORIZATION] =
+          gadgets.io.AuthorizationType.SIGNED;
 
       if (dataType == 'feed')
         opt_params['NUM_ENTRIES'] = 10;
@@ -4122,7 +4183,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   
   $.extend($._xhr.getPeople.prototype, $._xhr.prototype, {
   
-    send: function(data, dataType) {
+    send: function(data) {
       var self = this, query = parseUrl(self.url);
       
       var idspec = identify(query);
@@ -4222,7 +4283,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   
   $.extend($._xhr.getAppData.prototype, $._xhr.prototype, {
   
-    send: function(data, dataType) {
+    send: function(data) {
       var self = this, query = parseUrl(self.url);
 
       var idspec = identify(query);
@@ -4275,7 +4336,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   
   $.extend($._xhr.postAppData.prototype, $._xhr.prototype, {
   
-    send: function(data, dataType) {
+    send: function(data) {
       var self = this, query = parseUrl(self.url);
 
       var idspec = identify(query);

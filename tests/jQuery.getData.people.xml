@@ -30,7 +30,27 @@ jQuery(function($) {
     .ajaxStop(function() { console.log('ajaxStop'); });
 
   $.ajax({
-    url: '/people/@viewer/@friends?sortBy=name',
+    //url: '/people/@viewer/@friends?sortBy=name',
+    url: '/people/@owner/@friends?sortBy=name',
+    //url: '/people/02988388427948228959/@friends',
+    //url: '/people/17947911905709838043/@friends',
+	data: {
+	},
+	dataType: 'data',
+	success: function(people) {
+      $.each(people, function(i, person) {
+	    console.info(person);
+	  });
+	},
+    error: function(xhr, status, e) {
+      console.info(xhr, status, e);
+	}
+  });
+
+  $.ajax({
+    //url: '/people/02988388427948228959/@self',
+    //url: '/people/17947911905709838043/@self',
+    url: '/people/@owner/@self',
 	data: {
 	},
 	dataType: 'data',

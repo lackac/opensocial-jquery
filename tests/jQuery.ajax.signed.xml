@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<!--
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
+<ModulePrefs title="signed - jQuery.ajax - opensocial-jquery"
+  author_email="">
+<Require feature="opensocial-0.8" />
+</ModulePrefs>
+<Content type="html" view="profile,home,canvas"><![CDATA[
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/opensocial-jquery.min.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+
+  var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery/tests';
+  
+  /**
+   * success
+   */
+
+  var url = baseUrl + '/html.cgi';
+/*
+  $.ajax({
+    url: url,
+    complete: function(xhr, status) {
+      console.log('complete', xhr, status);
+    }
+  });
+
+  $.ajax({
+    url: url, oauth: 'signed',
+    complete: function(xhr, status) {
+      console.log('complete: oauth: signed', xhr, status);
+    }
+  });
+*/
+/*
+  $.get(
+    url,
+    function(data) {
+      console.log('complete', data);
+    }
+  );
+
+  $.get(
+    url + ' signed',
+    function(data) {
+      console.log('complete', data);
+    }
+  );
+*/
+  $.post(
+    url, {},
+    function(data) {
+      console.log('complete', data);
+    }
+  );
+
+  $.post(
+    url + ' signed', {},
+    function(data) {
+      console.log('complete', data);
+    }
+  );
+  
+/*
+function makeSignedRequest() {
+  var params = {};
+  params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+  var url = baseUrl + '/html.cgi';
+  gadgets.io.makeRequest(url, response, params);
+};
+
+function response(obj) {
+  //obj.text contains the text of the response
+  console.log(obj.text);
+};
+
+makeSignedRequest();
+ */
+
+});
+//gadgets.ut
+</script>
+]]></Content>
+</Module>

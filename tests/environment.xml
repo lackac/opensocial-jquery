@@ -30,7 +30,7 @@ jQuery(function($) {
   console.info($('html')[0].className);
 
   console.info($.feature('opensocial-0.8'));
-  console.info($.feature('views'));
+  console.info($.feature('locked-domain'));
   console.info($.feature('proxyUrl'));
   console.info($.feature('foo'));
 
