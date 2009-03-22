@@ -13,12 +13,6 @@ http://www.gnu.org/licenses/gpl.html
 -->
 <feature>
 <name>opensocial-jquery</name>
-<dependency>dynamic-height</dependency>
-<dependency>settitle</dependency>
-<dependency>views</dependency>
-<dependency>setprefs</dependency>
-<dependency>minimessage</dependency>
-<dependency>flash</dependency>
 <gadget>
 <script src="opensocial-jquery.min.js" />
 </gadget>

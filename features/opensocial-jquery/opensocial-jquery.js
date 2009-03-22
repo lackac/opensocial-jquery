@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 0.6.0
+ * opensocial-jquery 1.0.0
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3809,7 +3809,9 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 
   $.fn.adjustHeight = function(height) {
     if (this[0] === window)
-      gadgets.window.adjustHeight(height);
+      setTimeout(function() {
+        gadgets.window.adjustHeight(height);
+      }, 0);
     return this;
   };
 
@@ -3885,7 +3887,58 @@ if (gadgets.MiniMessage) {
       });
     });
   };
-}
+
+} // if (gadgets.MiniMessage) {
+
+  /**
+   * Tabs
+   */
+if (gadgets.TabSet) {
+
+  $.fn.tabs = function(fn) {
+    return this.each(function() {
+      var tabset = new gadgets.TabSet(null, null, this);
+      tabset.alignTabs('left');
+      $('ul', this)
+        .find('li a')
+        .each(function(i) {
+          var content = $('#' + this.href.split('#')[1]).get(0); 
+          tabset.addTab($(this).html(), {
+            tooltip: this.title,
+            contentContainer: content,
+            callback: function () {
+              if (fn) fn.apply(content, [i, content]);
+            }
+          });
+        })
+      .end()
+      .remove();
+    });
+  };
+
+} // if (gadgets.TabSet) {
+
+  /**
+   * PubSub
+   */
+if (gadgets.pubsub) {
+
+  $.pub = function(channel, data) {
+    gadgets.pubsub.publish(channel, data);
+  };
+
+  $.sub = function(channel, fn) {
+    gadgets.pubsub.subscribe(channel, fn);
+  };
+
+} // if (gadgets.pubsub) {
+
+  /**
+   * Skins
+   */
+if (gadgets.skins) {
+
+} // if (gadgets.skins) {
 
 })(jQuery);
 (function($) {
@@ -4021,6 +4074,10 @@ if (gadgets.MiniMessage) {
     return jQuery.get(url, data, callback, 'feed');
   };
 
+  $.proxy = function(url) {
+    return gadgets.io.getProxyUrl(url);
+  };
+
 })(jQuery);
 (function($) {
   
@@ -4051,7 +4108,10 @@ if (gadgets.MiniMessage) {
     '@owner': 'OWNER',
     '@self': 'SELF',
     '@friends': 'FRIENDS',
-    '@all': 'ALL'
+    '@all': 'ALL',
+    '@me/@friends': 'VIEWER_FRIENDS',
+    '@viewer/@friends': 'VIEWER_FRIENDS',
+    '@owner/@friends': 'OWNER_FRIENDS'
   };
 
   var filter = {
@@ -4371,5 +4431,160 @@ if (gadgets.MiniMessage) {
   });
 
   $.ajaxSettings.xhr.addRoute('POST', '/appdata/', $._xhr.postAppData);
+
+  /**
+   * getActivity
+   */
+if (opensocial) {
+  
+  $._xhr.getActivity = function() {
+    this.initialize();
+  };
+  
+  $.extend($._xhr.getActivity.prototype, $._xhr.prototype, {
+  
+    send: function(data) {
+      var self = this, query = parseUrl(self.url);
+
+      var idspec = identify(query);
+
+      var req = opensocial.newDataRequest();
+      req.add(req.newFetchActivitiesRequest(idspec), 'data');
+      req.send(function(res) {
+        self.readyState = 4; // DONE
+
+        var error = errorify(res);
+        if (error) {
+          self.status = error.status;
+          self.statusText = error.statusText;
+          self.responseText = error.reason;
+
+        } else {
+          var item = res.get('data');
+          var collection = item.getData();
+
+          var activities = $.map(collection.asArray(), function(activity) {
+            return objectify(activity);
+          });
+          activities.startIndex = 0; // collection.getOffset();
+          activities.itemsPerPage = 20;
+          activities.totalResults = collection.getTotalSize();
+
+          self.status = code['ok'];
+          self.statusText = 'ok';
+          self.responseData = activities;
+        }
+      });
+    }
+    
+  });
+
+  $.ajaxSettings.xhr.addRoute('GET', '/activities/', $._xhr.getActivity);
+
+} // if (opensocial) {
+
+  /**
+   * postActivity
+   */
+if (opensocial) {
+  
+  $._xhr.postActivity = function() {
+    this.initialize();
+  };
+  
+  $.extend($._xhr.postActivity.prototype, $._xhr.prototype, {
+  
+    send: function(data) {
+      var self = this;
+
+      data.mediaItems = $.map(data.mediaItems || [], function(mediaItem) {
+        return opensocial.newMediaItem(
+          mediaItem[opensocial.MediaItem.Field.MIME_TYPE], // mimeType
+          mediaItem[opensocial.MediaItem.Field.URL], // url
+          mediaItem // opt_params
+        );
+      });
+
+      opensocial.requestCreateActivity(
+        opensocial.newActivity(data),
+        opensocial.CreateActivityPriority.HIGH,
+      function(res) {
+        self.readyState = 4; // DONE
+
+        var error = errorify(
+          new opensocial.DataResponse({ data: res }, res.hadError())
+        );
+        if (error) {
+          self.status = error.status;
+          self.statusText = error.statusText;
+          self.responseText = error.reason;
+        } else {
+          self.status = code['ok'];
+          self.statusText = 'ok';
+          self.responseData = res.getData() || {};
+        }
+      });
+    }
+    
+  });
+
+  $.ajaxSettings.xhr.addRoute('POST', '/activities/', $._xhr.postActivity);
+
+} // if (opensocial) {
+
+  /**
+   * postMessage
+   */
+if (opensocial) {
+  
+  $._xhr.postMessage = function() {
+    this.initialize();
+  };
+  
+  $.extend($._xhr.postMessage.prototype, $._xhr.prototype, {
+  
+    send: function(data) {
+      var self = this;
+
+      var recipients = data.recipients;
+      if (typeof(recipients) == 'string')
+        recipients = recipients.split(',');
+      recipients = $.map(recipients, function(recipient) {
+        return selector[recipient] || recipient;
+      });
+      if (recipients.length <= 1)
+        recipients = recipients[0];
+
+      var message = opensocial.newMessage(
+        data[opensocial.Message.Field.BODY],
+        data
+      );
+
+      opensocial.requestSendMessage(
+        recipients,
+        message,
+      function(res) {
+        self.readyState = 4; // DONE
+
+        var error = errorify(
+          new opensocial.DataResponse({ data: res }, res.hadError())
+        );
+        if (error) {
+          self.status = error.status;
+          self.statusText = error.statusText;
+          self.responseText = error.reason;
+        } else {
+          self.status = code['ok'];
+          self.statusText = 'ok';
+          self.responseData = res.getData() || {};
+        }
+      });
+    }
+    
+  });
+
+  $.ajaxSettings.xhr.addRoute('POST', '/messages/', $._xhr.postMessage);
+
+} // if (opensocial) {
 
 })(jQuery);
