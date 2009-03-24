@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 0.5.1
+ * opensocial-jquery 1.0.1
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
