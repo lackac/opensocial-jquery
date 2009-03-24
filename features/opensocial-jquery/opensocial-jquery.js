@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 1.0.0
+ * opensocial-jquery 1.0.1
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3742,6 +3742,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     orkut: /orkut/.test(synd),
     hi5: /hi5/.test(synd),
     myspace: /msappspace/.test(location.host),
+    goohome: /goohome/.test(synd),
     sandbox: /sandbox/.test(synd) ||
       /sandbox/.test(parent) ||
       /sandbox/.test(location.host) ||
@@ -3760,9 +3761,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
    * Preference
    */
 
-  var prefs = new gadgets.Prefs();
-  
   $.pref = function(key, value) {
+    var prefs = new gadgets.Prefs();
     var pairs = key;
 
     if (key.constructor === String)
@@ -3794,7 +3794,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   };
 
   $.msg = function(key) {
-    return prefs.getMsg(key);
+    return new gadgets.Prefs().getMsg(key);
   };
   
   /**
@@ -4026,7 +4026,7 @@ if (gadgets.skins) {
           } else {
             self.status = res.rc;
             //self.statusText = 'OK';
-            self.responseHeaders = res.headers;
+            self.responseHeaders = res.headers || {};
             self.responseText = res.text;
 
             if (dataType == 'xml')
@@ -4087,9 +4087,14 @@ if (gadgets.skins) {
   /**
    * Environment
    */
+if (opensocial) {
 
-  $.container.domain = opensocial.getEnvironment().getDomain();
-  
+  $(function() {
+    $.container.domain = opensocial.getEnvironment().getDomain();
+  });
+
+} // if (opensocial) {
+
   /**
    * DataRequest
    */
