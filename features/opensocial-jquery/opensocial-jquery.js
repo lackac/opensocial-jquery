@@ -3691,6 +3691,22 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     }
   };
 
+  Deferred.next = function (fun) {
+    var d = new Deferred();
+    var id = setTimeout(function () { clearTimeout(id); d.call() }, 0);
+    if (fun) d.callback.ok = fun;
+    d.canceller = function () { try { clearTimeout(id) } catch (e) {} };
+    return d;
+  };
+
+  Deferred.call = function (f, args) {
+    args = Array.prototype.slice.call(arguments);
+    f    = args.shift();
+    return Deferred.next(function () {
+      return f.apply(this, args);
+    });
+  };
+
 /**
  * Enhancing of jQuery.ajax with JSDeferred
  * http://developmentor.lrlab.to/
@@ -3703,6 +3719,12 @@ jQuery.each([ "Height", "Width" ], function(i, name){
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
  */
+
+  // next
+  $.next = Deferred.next;
+
+  // call
+  $.call = Deferred.call;
 
   // _ajax
   $._ajax = $.ajax;
