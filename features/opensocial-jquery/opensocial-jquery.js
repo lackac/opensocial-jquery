@@ -3707,6 +3707,16 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     });
   };
 
+  Deferred.define = function (obj, list) {
+    //if (!list) list = ["parallel", "wait", "next", "call", "loop"];
+    //if (!obj)  obj  = (function () { return this })();
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i];
+      obj[n] = Deferred[n];
+    }
+    return Deferred;
+  };
+
 /**
  * Enhancing of jQuery.ajax with JSDeferred
  * http://developmentor.lrlab.to/
@@ -3720,11 +3730,8 @@ jQuery.each([ "Height", "Width" ], function(i, name){
  * http://www.gnu.org/licenses/gpl.html
  */
 
-  // next
-  $.next = Deferred.next;
-
-  // call
-  $.call = Deferred.call;
+  // next, call
+  Deferred.define($, ['next', 'call']);
 
   // _ajax
   $._ajax = $.ajax;
