@@ -2585,6 +2585,14 @@ jQuery.extend({
 		return jQuery.get(url, data, callback, "json");
 	},
 
+  getFeed: function(url, data, callback) {
+    return jQuery.get(url, data, callback, 'feed');
+  },
+
+  getData: function(url, data, callback) {
+    return jQuery.get(url, data, callback, 'data');
+  },
+
 	post: function( url, data, callback, type ) {
 		var off = url.indexOf(" ");
 		if ( off >= 0 ) {
@@ -2606,6 +2614,10 @@ jQuery.extend({
 			oauth: oauth
 		});
 	},
+
+  postData: function(url, data, callback) {
+    return jQuery.post(url, data, callback, 'data');
+  },
 
 	ajaxSetup: function( settings ) {
 		jQuery.extend( jQuery.ajaxSettings, settings );
@@ -3691,6 +3703,16 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     }
   };
 
+  Deferred.wait = function (n) {
+    var d = new Deferred(), t = new Date();
+    var id = setTimeout(function () {
+      clearTimeout(id);
+      d.call((new Date).getTime() - t.getTime());
+    }, n * 1000);
+    d.canceller = function () { try { clearTimeout(id) } catch (e) {} };
+    return d;
+  };
+
   Deferred.next = function (fun) {
     var d = new Deferred();
     var id = setTimeout(function () { clearTimeout(id); d.call() }, 0);
@@ -3707,15 +3729,23 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     });
   };
 
-  Deferred.define = function (obj, list) {
-    //if (!list) list = ["parallel", "wait", "next", "call", "loop"];
-    //if (!obj)  obj  = (function () { return this })();
-    for (var i = 0; i < list.length; i++) {
-      var n = list[i];
-      obj[n] = Deferred[n];
-    }
-    return Deferred;
+  Deferred.register = function (name, fun) {
+    this.prototype[name] = function () {
+      return this.next(Deferred.wrap(fun).apply(null, arguments));
+    };
   };
+
+  Deferred.wrap = function (dfun) {
+    return function () {
+      var a = arguments;
+      return function () {
+        return dfun.apply(null, a);
+      };
+    };
+  };
+
+  //Deferred.register("loop", Deferred.loop);
+  Deferred.register("wait", Deferred.wait);
 
 /**
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3730,8 +3760,10 @@ jQuery.each([ "Height", "Width" ], function(i, name){
  * http://www.gnu.org/licenses/gpl.html
  */
 
-  // next, call
-  Deferred.define($, ['next', 'call']);
+  // define
+  $.each(['wait','next','call'], function() {
+    $[this] = Deferred[this];
+  });
 
   // _ajax
   $._ajax = $.ajax;
@@ -3753,6 +3785,11 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     }));
     return deferred;
   };
+
+  // register
+  $.each(['ajax','get','getJSON','getFeed','getData','post','postData'], function() {
+    Deferred.register(this, $[this]);
+  });
 
 })(jQuery);
 (function($) {
@@ -4061,10 +4098,11 @@ if (gadgets.skins) {
             if (dataType == 'xml')
               self.responseXML = res.data;
             else if (dataType == 'feed') {
-              $.each(res.data.Entry, function(i, entry) {
-                if (entry.Date < Math.pow(2, 32))
-                  entry.Date *= 1000;
-              });
+              if (res.data)
+                $.each(res.data.Entry, function(i, entry) {
+                  if (entry.Date < Math.pow(2, 32))
+                    entry.Date *= 1000;
+                });
               self.responseFeed = res.data;
             }
           }
@@ -4099,10 +4137,6 @@ if (gadgets.skins) {
     routes[type + ' ' + url] = xhr;
   };
 
-  $.getFeed = function( url, data, callback ) {
-    return jQuery.get(url, data, callback, 'feed');
-  };
-
   $.proxy = function(url) {
     return gadgets.io.getProxyUrl(url);
   };
@@ -4127,14 +4161,6 @@ if (opensocial) {
   /**
    * DataRequest
    */
-
-  $.getData = function(url, data, callback) {
-    return jQuery.get(url, data, callback, 'data');
-  };
-
-  $.postData = function(url, data, callback) {
-    return jQuery.post(url, data, callback, 'data');
-  };
 
   var selector = {
     '@me': 'VIEWER',
