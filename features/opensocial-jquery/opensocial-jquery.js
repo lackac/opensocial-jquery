@@ -4142,6 +4142,7 @@ if (opensocial) {
     '@owner': 'OWNER',
     '@self': 'SELF',
     '@friends': 'FRIENDS',
+    '@admins': 'ADMINS',
     '@all': 'ALL',
     '@me/@friends': 'VIEWER_FRIENDS',
     '@viewer/@friends': 'VIEWER_FRIENDS',
