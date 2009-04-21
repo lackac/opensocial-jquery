@@ -3809,6 +3809,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     hi5: /hi5/.test(synd),
     myspace: /msappspace/.test(location.host),
     goohome: /goohome/.test(synd),
+    friendconnect: /peoplesense/.test(synd),
     sandbox: /sandbox/.test(synd) ||
       /sandbox/.test(parent) ||
       /sandbox/.test(location.host) ||
