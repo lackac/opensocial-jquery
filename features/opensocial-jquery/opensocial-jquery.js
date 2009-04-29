@@ -3820,9 +3820,11 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     if ($.container[key])
       $('html').addClass(key);
 
+  $.container.cache = true;
+
   $.feature = function(name) {
     return gadgets.util.getFeatureParameters(name);
-  }
+  };
   
   /**
    * Preference
