@@ -3813,14 +3813,13 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     sandbox: /sandbox/.test(synd) ||
       /sandbox/.test(parent) ||
       /sandbox/.test(location.host) ||
-      /msappspace/.test(location.host) && /dev/.test(v)
+      /msappspace/.test(location.host) && /dev/.test(v),
+    cache: true
   };
 
   for (var key in $.container)
     if ($.container[key])
       $('html').addClass(key);
-
-  $.container.cache = true;
 
   $.feature = function(name) {
     return gadgets.util.getFeatureParameters(name);
@@ -4093,7 +4092,7 @@ if (gadgets.skins) {
             self.responseText = res.errors.join(' ');
           
           } else {
-            self.status = res.rc;
+            self.status = res.rc || 200;
             //self.statusText = 'OK';
             self.responseHeaders = res.headers || {};
             self.responseText = res.text;

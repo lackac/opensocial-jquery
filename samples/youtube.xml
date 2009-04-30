@@ -12,18 +12,22 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 -->
-<ModulePrefs title="YouTube - samples - opensocial-jquery">
+<ModulePrefs 
+  title="YouTube"
+  title_url="http://code.google.com/p/opensocial-jquery/"
+  description="Fetches the content from YouTube by using jQuery.getJSON. (by opensocial-jquery)"
+>
 <Require feature="dynamic-height" />
 <Require feature="settitle" />
 </ModulePrefs>
 <UserPref name="tag" default_value="dog" required="true" />
-<Content type="html"><![CDATA[
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/opensocial-jquery.min.js"></script>
+<Content type="html" view="profile,home,canvas"><![CDATA[
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/opensocial-jquery.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
 
   // Retrieves a preference as a string.
-  var tag = $.pref('tag');
+  var tag = $.pref('tag') || 'dog';
 
   // Sets the gadget title.
   $(window).title(tag + ' - YouTube');
