@@ -22,7 +22,7 @@ http://www.gnu.org/licenses/gpl.html
 <UserPref name="tag" default_value="dog" required="true" />
 
 <Content type="html" view="profile,home"><![CDATA[
-<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/opensocial-jquery.js"></script>
+<script type="text/javascript" src="http://d1lzci7p8hi5b7.cloudfront.net/opensocial-jquery.min.js"></script>
 <script type="text/javascript">
 jQuery(function($) {
 
