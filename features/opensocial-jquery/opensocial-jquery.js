@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 1.0.1
+ * opensocial-jquery 1.0.2
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3703,6 +3703,34 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     }
   };
 
+  Deferred.parallel = function (dl) {
+    var ret = new Deferred(), values = {}, num = 0;
+    for (var i in dl) if (dl.hasOwnProperty(i)) {
+      (function (d, i) {
+        d.next(function (v) {
+          values[i] = v;
+          if (--num <= 0) {
+            if (dl instanceof Array) {
+              values.length = dl.length;
+              values = Array.prototype.slice.call(values, 0);
+            }
+            ret.call(values);
+          }
+        }).error(function (e) {
+          ret.fail(e);
+        });
+        num++;
+      })(dl[i], i);
+    }
+    if (!num) Deferred.next(function () { ret.call() });
+    ret.canceller = function () {
+      for (var i in dl) if (dl.hasOwnProperty(i)) {
+        dl[i].cancel();
+      }
+    };
+    return ret;
+  };
+
   Deferred.wait = function (n) {
     var d = new Deferred(), t = new Date();
     var id = setTimeout(function () {
@@ -3744,7 +3772,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     };
   };
 
-  //Deferred.register("loop", Deferred.loop);
+  //Deferred.register("parallel", Deferred.parallel);
   Deferred.register("wait", Deferred.wait);
 
 /**
@@ -3760,8 +3788,13 @@ jQuery.each([ "Height", "Width" ], function(i, name){
  * http://www.gnu.org/licenses/gpl.html
  */
 
+  // deferred
+  $.deferred = function() {
+    return new Deferred();
+  };
+
   // define
-  $.each(['wait','next','call'], function() {
+  $.each(['parallel','wait','next','call'], function() {
     $[this] = Deferred[this];
   });
 
@@ -3802,6 +3835,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   var synd = params['synd'] || '';
   var parent = params['parent'] || '';
   var v = params['v'] || '';
+  var nocache = params['nocache'] || '0';
   
   $.container = {
     igoogle: /ig/.test(synd),
@@ -3810,11 +3844,12 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     myspace: /msappspace/.test(location.host),
     goohome: /goohome/.test(synd),
     friendconnect: /peoplesense/.test(synd),
+    mixi: /mixi/.test(location.host),
     sandbox: /sandbox/.test(synd) ||
       /sandbox/.test(parent) ||
       /sandbox/.test(location.host) ||
       /msappspace/.test(location.host) && /dev/.test(v),
-    cache: true
+    cache: nocache == '1'
   };
 
   for (var key in $.container)
@@ -3923,21 +3958,25 @@ jQuery.each([ "Height", "Width" ], function(i, name){
    * Flash
    */
 if (gadgets.flash) {
+  var version = gadgets.flash.getMajorVersion();
+  if (version) {
 
-  $.flash = {
-    version: gadgets.flash.getMajorVersion()
-  };
+    $.flash = {
+      version: version
+    };
 
-  $.fn.flash = function(url, data) {
-    data = $.extend(true, {}, data);
-    for (var key in data)
-      if (key.toLowerCase() == 'flashvars' && data[key] && typeof(data[key]) != 'string')
-         data[key] = jQuery.param(data[key]);
-    return this.each(function() {
-      gadgets.flash.embedFlash(url, this, $.flash.version, data);
-    });
-  };
+    $.fn.flash = function(url, data) {
+      data = $.extend(true, {}, data);
+      for (var key in data)
+        if (key.toLowerCase() == 'flashvars' && data[key] && typeof(data[key]) != 'string')
+           data[key] = jQuery.param(data[key]);
+      var fn = $.container.cache ? 'embedCachedFlash' : 'embedFlash';
+      return this.each(function() {
+        gadgets.flash[fn](url, this, $.flash.version, data);
+      });
+    };
 
+  }
 }
 
   /**
@@ -4051,6 +4090,9 @@ if (gadgets.skins) {
       if (dataType == 'feed')
         opt_params['NUM_ENTRIES'] = 10;
 
+      if ($.container.cache)
+        opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
+
       gadgets.io.makeRequest(this.url, function(res) {
         self.readyState = 4; // DONE
 
@@ -4140,7 +4182,10 @@ if (gadgets.skins) {
   };
 
   $.proxy = function(url) {
-    return gadgets.io.getProxyUrl(url);
+    var opt_params = {};
+    if ($.container.cache)
+      opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
+    return gadgets.io.getProxyUrl(url, opt_params);
   };
 
 })(jQuery);
