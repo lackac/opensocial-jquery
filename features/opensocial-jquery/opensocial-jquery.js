@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 1.0.2
+ * opensocial-jquery 1.0.2a
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -3849,7 +3849,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
       /sandbox/.test(parent) ||
       /sandbox/.test(location.host) ||
       /msappspace/.test(location.host) && /dev/.test(v),
-    cache: nocache == '1'
+    cache: nocache != '1'
   };
 
   for (var key in $.container)
@@ -4090,7 +4090,7 @@ if (gadgets.skins) {
       if (dataType == 'feed')
         opt_params['NUM_ENTRIES'] = 10;
 
-      if ($.container.cache)
+      if (!$.container.cache)
         opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
 
       gadgets.io.makeRequest(this.url, function(res) {
@@ -4183,7 +4183,7 @@ if (gadgets.skins) {
 
   $.proxy = function(url) {
     var opt_params = {};
-    if ($.container.cache)
+    if (!$.container.cache)
       opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
     return gadgets.io.getProxyUrl(url, opt_params);
   };
