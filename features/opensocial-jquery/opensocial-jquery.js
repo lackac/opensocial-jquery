@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 1.0.2a
+ * opensocial-jquery 1.0.3
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -2368,6 +2368,10 @@ var readyBound = false;
 
 function bindReady(){
 	if ( readyBound ) return;
+
+	if (window.google && google.friendconnect)
+	  if (!jQuery.container.id) return;
+
 	readyBound = true;
 
 //	// Mozilla, Opera (see further below for it) and webkit nightlies currently support this event
@@ -2425,8 +2429,95 @@ function bindReady(){
 //	// A fallback to window.onload, that will always work
 //	jQuery.event.add( window, "load", jQuery.ready );
 
-	gadgets.util.registerOnLoadHandler(jQuery.ready);
+	if (window.google && google.friendconnect) {
+		if (jQuery.container.parentUrl)
+			google.friendconnect.container.setParentUrl(jQuery.container.parentUrl);
+		google.friendconnect.container.setNoCache(jQuery.container.cache ? 0 : 1);
+		google.friendconnect.container.loadOpenSocialApi({
+			site: jQuery.container.id, onload: function(st) {
+			  jQuery.anonymous = document.cookie && /fcauth[0-9]+=/.test(document.cookie);
+				if (!jQuery.isReady)
+					return jQuery.ready();
+				jQuery.signList[''].apply(document);
+			}
+		});
+	}	else
+		gadgets.util.registerOnLoadHandler(jQuery.ready);
 }
+
+jQuery.extend({
+	
+	// invite
+	invite: function(message) {
+		google.friendconnect.requestInvite(message);
+	},
+
+	// settings
+	settings: function(fn) {
+		jQuery.signList[''] = fn || function() {};
+		google.friendconnect.requestSettings();
+	},
+
+	// anonymous
+	anonymous: true,
+
+	// signList
+	signList: {},
+
+	// signIn
+	signIn: function(provider, fn) {
+		if (jQuery.isFunction(provider)) {
+			fn = provider; provider = null;
+		}
+		if (provider)
+			provider = provider.toUpperCase();
+		jQuery.signList[''] = fn || function() {};
+		google.friendconnect.requestSignIn(provider);
+	},
+
+	// signOut
+	signOut: function(fn) {
+		jQuery.signList[''] = fn || function() {};
+		google.friendconnect.requestSignOut();
+	}
+});
+
+jQuery.fn.extend({
+	
+	// signIn
+	signIn: function(fn) {
+		var guid = now();
+		this.each(function() {
+			if (!this.id)
+				this.id = 'signIn' + guid++;
+			var self = jQuery(this);
+			google.friendconnect.renderSignInButton({
+				id: this.id, text: self.text(), style: self.hasClass('text') && 'text' ||
+					self.hasClass('long') && 'long' || 'standard'
+			});
+			self.children('div:first').click(function() {
+				jQuery.signList[''] = function() {
+					self.each(fn || function() {});
+				}
+			});
+		});
+	},
+
+	// gadget
+	gadget: function(url, data) {
+		var guid = now();
+		this.each(function() {
+			if (!this.id)
+				this.id = 'gadget' + guid++;
+			if (jQuery.container.parentUrl)
+				google.friendconnect.container.setParentUrl(jQuery.container.parentUrl);
+			google.friendconnect.container.setNoCache(jQuery.container.cache ? 0 : 1);
+			google.friendconnect.container.renderOpenSocialGadget({
+				id: this.id, url: url, 'view-params': data, site: jQuery.container.id
+			});
+		});
+	}
+});
 
 jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
 	"mousedown,mouseup,mousemove,mouseover,mouseout,change,select," +
@@ -3832,7 +3923,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
    */
 
   var params = gadgets.util.getUrlParameters();
-  var synd = params['synd'] || '';
+  var synd = params['synd'] || params['container'] || '';
   var parent = params['parent'] || '';
   var v = params['v'] || '';
   var nocache = params['nocache'] || '0';
