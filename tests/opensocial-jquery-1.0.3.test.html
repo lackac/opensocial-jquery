@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>opensocial-jquery 1.0.3 tests</title>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">google.load('friendconnect', '0.8');</script>
+<script type="text/javascript">
+</script>
+<script type="text/javascript" src="/opensocial-jquery/opensocial-jquery.min.js"></script>
+<script type="text/javascript">
+jQuery.container.id = '04434253654266747254';
+jQuery.container.parentUrl = '/';
+jQuery.container.cache = false;
+jQuery(function($) {
+  var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery';
+
+  // signin
+  $('div.signin')
+    .signIn(function() { console.log('signIn', this, $.anonymous); });
+
+  // gadget
+  $('div.gadget')
+    .gadget(baseUrl + '/tests/opensocial-jquery-1.0.3.test.xml');
+
+  // youtube
+  var url = 'http://gdata.youtube.com/feeds/videos?callback=?';
+  var data = { vq: 'google', alt: 'json-in-script' };
+//$.getJSON(url, data, function(json) {
+  $.getJSON(url, data).next(function(json) {
+	$.each(json.feed.entry, function() {
+      var img = $('<img width="80" heieht="60" />')
+	    .attr('src', this.media$group.media$thumbnail[0].url);
+      $('<a target="_blank" />')
+	    .attr('href', this.media$group.media$player[0].url)
+	    .append(img)
+	    .appendTo('#videos');
+	});
+  });
+  
+  // delicious
+  var url = 'http://feeds.delicious.com/v2/json';
+  var data = { callback: 'var delicious=' };
+//$.getScript(url + '?' + $.param(data), function() {
+  $.getScript(url + '?' + $.param(data)).next(function() {
+	$.each(delicious, function() {
+      $('<li />')
+	    .text(this.d)
+	    .appendTo('#bookmarks');
+	});
+  });
+
+  // xhr
+  $.getJSON(baseUrl + '/tests/data.json').next(function(json) {
+    $('<li />').text(json.say).appendTo('#xhr');
+  }).getJSON('data.json').next(function(json) {
+    $('<li />').text(json.say).appendTo('#xhr');
+  }).getJSON(baseUrl + '/tests/parsererror.json').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  }).getJSON('parsererror.json').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  }).getJSON('http://www.goo.ne.jp/').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  });
+
+});
+</script>
+</head>
+<body>
+<h1>opensocial-jquery 1.0.3 tests</h1>
+<p>
+<a class="signin" href="#signin" onclick="jQuery.signIn();">Sign in</a> |
+<a class="signin" href="#signin" onclick="jQuery.signIn(function() { console.log('signIn', this, $.anonymous); });">Sign in + CALLBACK</a> |
+<a class="signin" href="#signin" onclick="jQuery.signIn('google', function() { console.log('signIn', this, $.anonymous); });">Sign in + PROVIDER + CALLBACK</a>
+</p><p>
+<a class="signin" href="#signin" onclick="jQuery.signIn('GOoGLE');">Sign in (GOOGLE)</a> |
+<a class="signin" href="#signin" onclick="jQuery.signIn('yAHOO');">Sign in (YAHOO)</a> |
+<a class="signin" href="#signin" onclick="jQuery.signIn('AIn');">Sign in (AIM)</a> |
+<a class="signin" href="#signin" onclick="jQuery.signIn('OPENiD');">Sign in (OPENID)</a>
+</p><p>
+<a class="signout" href="#signout" onclick="jQuery.signOut();">Sign out</a> |
+<a class="signout" href="#signout" onclick="jQuery.signOut(function() { console.log('signOut', this, $.anonymous); });">Sign out + CALLBACK</a>
+</p>
+<form onsubmit="jQuery.invite(this.message.value);">
+<a class="invite" href="#invite" onclick="jQuery.invite();">Invite</a>
+<input name="message" />
+<input type="submit" value="Invite" />
+</form>
+<p>
+<a class="settings" href="#settings" onclick="jQuery.settings();">Settings</a> | 
+<a class="settings" href="#settings" onclick="jQuery.settings(function() { console.log('settings', this, $.anonymous); });">Settings + CALLBACK</a>
+</p>
+<div class="signin" id="signin"></div>
+<div class="signin" id="">(id is empty)</div>
+<div class="signin">
+(no id)
+</div>
+<div class="signin text"></div>
+<div class="signin long"></div>
+<p>
+<a class="gadget" href="#gadget" onclick="jQuery('div.gadget').gadget('http://developmentor.lrlab.to/opensocial-jquery/tests/opensocial-jquery-1.0.3.test.xml', { color: '#f00' });">Gadget (RED)</a> | 
+<a class="gadget" href="#gadget" onclick="jQuery('div.gadget').gadget('http://developmentor.lrlab.to/opensocial-jquery/tests/opensocial-jquery-1.0.3.test.xml', { color: '#0f0' });">Gadget (GREEN)</a> |
+<a class="gadget" href="#gadget" onclick="jQuery('div.gadget').gadget('http://developmentor.lrlab.to/opensocial-jquery/tests/opensocial-jquery-1.0.3.test.xml', { color: '#00f' });">Gadget (BLUE)</a>
+</p>
+<div class="gadget"></div>
+<div id="videos"></div>
+<ul id="bookmarks"></ul>
+<ul id="xhr"></ul>
+</body>
+</html>

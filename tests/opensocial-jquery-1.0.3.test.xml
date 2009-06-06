@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<!--
+opensocial-jquery
+http://code.google.com/p/opensocial-jquery/
+
+Copyright(C) 2008 LEARNING RESOURCE LAB
+http://friendfeed.com/nakajiman
+http://hp.submit.ne.jp/d/16750/
+
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+-->
+<ModulePrefs 
+  title="opensocial-jquery 1.0.3 tests"
+  description="opensocial-jquery 1.0.3 tests"
+  author_email="nakajiman@lrlab.to"
+>
+<Require feature="dynamic-height" />
+<Require feature="opensocial-0.8" />
+</ModulePrefs>
+<Content type="html"><![CDATA[
+<script type="text/javascript" src="http://developmentor.lrlab.to/opensocial-jquery/opensocial-jquery.min.js"></script>
+<script type="text/javascript">
+jQuery(function($, data) {
+  var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery';
+
+  $('body').css(data);
+
+  // people
+  var url = '/people/@viewer/@self';
+  var data = {};
+  $.getData(url, data, function(data, status) {
+    var person = data[0];
+	if (person.thumbnailUrl)
+	  $('.person .thumbnail img')
+	    .attr('src', person.thumbnailUrl)
+	    .show();
+	$('.person .id')
+	  .text(person.id);
+	$('.person .displayName')
+	  .text(person.displayName);
+    $(window).adjustHeight();
+  });
+
+  // youtube
+  var url = 'http://gdata.youtube.com/feeds/videos?callback=?';
+  var data = { vq: 'yahoo', alt: 'json-in-script' };
+  $.getJSON(url, data).next(function(json) {
+	$.each(json.feed.entry, function() {
+      var img = $('<img width="80" heieht="60" />')
+	    .attr('src', this.media$group.media$thumbnail[0].url);
+      $('<a target="_blank" />')
+	    .attr('href', this.media$group.media$player[0].url)
+	    .append(img)
+	    .appendTo('#videos');
+	});
+    $(window).adjustHeight();
+  });
+
+  // delicious
+  var url = 'http://feeds.delicious.com/v2/json';
+  var data = { callback: 'var delicious=' };
+  $.getScript(url + '?' + $.param(data) + ' signed').next(function() {
+	$.each(delicious, function() {
+      $('<li />')
+	    .text(this.d)
+	    .appendTo('#bookmarks');
+	});
+    $(window).adjustHeight();
+  });
+
+  // xhr
+  $.getJSON(baseUrl + '/tests/data.json').next(function(json) {
+    $('<li />').text(json.say).appendTo('#xhr');
+  }).getJSON('data.json').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  }).getJSON(baseUrl + '/tests/parsererror.json').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  }).next(function() {
+    $(window).adjustHeight();
+  });
+
+});
+</script>
+<style type="text/css">
+<!--
+dl dt, dl dd{
+  margin: 0;
+}
+-->
+</style>
+<div id="people">
+<dl class="person">
+<dt class="thumbnail"><img style="display:none;" /></dt>
+<dd class="id"></dd>
+<dd class="displayName"></dd>
+</dl>
+</div>
+<div id="videos"></div>
+<ul id="bookmarks"></ul>
+<ul id="xhr"></ul>
+]]></Content>
+</Module>

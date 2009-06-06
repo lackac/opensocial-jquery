@@ -2786,8 +2786,8 @@ jQuery.extend({
 				// Garbage collect
 				window[ jsonp ] = undefined;
 				try{ delete window[ jsonp ]; } catch(e){}
-//				if ( head )
-//					head.removeChild( script );
+				if ( head )
+					head.removeChild( script );
 			};
 		}
 
@@ -2814,47 +2814,50 @@ jQuery.extend({
 		if ( s.global && ! jQuery.active++ )
 			jQuery.event.trigger( "ajaxStart" );
 
-//		// Matches an absolute URL, and saves the domain
-//		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
-//
-//		// If we're requesting a remote document
-//		// and trying to load JSON or Script with a GET
-//		if ( s.dataType == "script" && type == "GET"
-//				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
-//			var head = document.getElementsByTagName("head")[0];
-//			var script = document.createElement("script");
-//			script.src = s.url;
-//			if (s.scriptCharset)
-//				script.charset = s.scriptCharset;
-//
-//			// Handle Script loading
-//			if ( !jsonp ) {
-//				var done = false;
-//
-//				// Attach handlers for all browsers
-//				script.onload = script.onreadystatechange = function(){
-//					if ( !done && (!this.readyState ||
-//							this.readyState == "loaded" || this.readyState == "complete") ) {
-//						done = true;
-//						success();
-//						complete();
-//						head.removeChild( script );
-//					}
-//				};
-//			}
-//
-//			head.appendChild(script);
-//
-//			// We handle everything using the script element injection
-//			return undefined;
-//		}
+if (window.google && google.friendconnect) {
+
+		// Matches an absolute URL, and saves the domain
+		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
+
+		// If we're requesting a remote document
+		// and trying to load JSON or Script with a GET
+		if ( s.dataType == "script" && type == "GET"
+				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
+			var head = document.getElementsByTagName("head")[0];
+			var script = document.createElement("script");
+			script.src = s.url;
+			if (s.scriptCharset)
+				script.charset = s.scriptCharset;
+
+			// Handle Script loading
+			if ( !jsonp ) {
+				var done = false;
+
+				// Attach handlers for all browsers
+				script.onload = script.onreadystatechange = function(){
+					if ( !done && (!this.readyState ||
+							this.readyState == "loaded" || this.readyState == "complete") ) {
+						done = true;
+						success();
+						complete();
+						head.removeChild( script );
+					}
+				};
+			}
+
+			head.appendChild(script);
+
+			// We handle everything using the script element injection
+			return undefined;
+		}
+}
 
 		var requestDone = false;
 
 //		// Create the request object; Microsoft failed to properly
 //		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
 //		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
-    var xhr = s.xhr(type, s.url);
+    var xhr = s.xhr(type, s.url, s);
 
 		// Open the socket
 		// Passing null username, generates a login popup on Opera (#2865)
@@ -2968,9 +2971,7 @@ jQuery.extend({
 
 		// Send the data
 		try {
-//			xhr.send(s.data);
-			xhr.send(s.data, s);
-
+			xhr.send(s.data);
 		} catch(e) {
 			jQuery.handleError(s, xhr, null, e);
 		}
@@ -4142,13 +4143,14 @@ if (gadgets.skins) {
 (function($) {
 
   $._xhr = function() {
-    this.initialize();
+    this.initialize.apply(this, arguments);
   };
 
   $._xhr.prototype = {
     
-    initialize: function() {
+    initialize: function(s) {
       this.readyState = 0; // UNSENT
+      this.s = s;
     },
   
     open: function(type, url, async, username, password) {
@@ -4159,9 +4161,11 @@ if (gadgets.skins) {
       this.responseHeaders = {};
     },
 
-    send: function(data, s) {
+    send: function(data) {
       var self = this;
-      var dataType = s.dataType;
+      var url = self.url;
+      var oauth = self.s.oauth;
+      var dataType = self.s.dataType;
       
       var opt_params = [];
       opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
@@ -4174,7 +4178,7 @@ if (gadgets.skins) {
       if (data)
         opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
 
-      if (s.oauth == 'signed')
+      if (oauth == 'signed')
         opt_params[gadgets.io.RequestParameters.AUTHORIZATION] =
           gadgets.io.AuthorizationType.SIGNED;
 
@@ -4184,7 +4188,7 @@ if (gadgets.skins) {
       if (!$.container.cache)
         opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
 
-      gadgets.io.makeRequest(this.url, function(res) {
+      gadgets.io.makeRequest(url, function(res) {
         self.readyState = 4; // DONE
 
         if ($.container.myspace) {
@@ -4261,11 +4265,16 @@ if (gadgets.skins) {
 
   var routes = [];
 
-  $.ajaxSettings.xhr = function(type, url) {
+  $.ajaxSettings.xhr = function(type, url, s) {
     for (route in routes)
       if ((type + ' ' + url).indexOf(route) == 0)
         return new routes[route];
-    return new $._xhr();
+    if (!(window.google && google.friendconnect)) {
+      var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
+      if (remote.test(url) && remote.exec(url)[1] != location.host)
+        return new $._xhr(s);
+    }
+    return window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
   };
 
   $.ajaxSettings.xhr.addRoute = function(type, url, xhr) {
