@@ -2435,7 +2435,7 @@ function bindReady(){
 		google.friendconnect.container.setNoCache(jQuery.container.cache ? 0 : 1);
 		google.friendconnect.container.loadOpenSocialApi({
 			site: jQuery.container.id, onload: function(st) {
-			  jQuery.anonymous = document.cookie && /fcauth[0-9]+=/.test(document.cookie);
+			  jQuery.anonymous = !(document.cookie && /fcauth[0-9]+=/.test(document.cookie));
 				if (!jQuery.isReady)
 					return jQuery.ready();
 				jQuery.signList[''].apply(document);
