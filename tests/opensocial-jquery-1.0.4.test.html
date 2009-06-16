@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>opensocial-jquery 1.0.4 tests</title>
+<script type="text/javascript" src="/opensocial-jquery/opensocial-jquery.js"></script>
+<script type="text/javascript">
+jQuery(function($) {
+  var baseUrl = 'http://developmentor.lrlab.to/opensocial-jquery';
+
+  // youtube
+  var url = 'http://gdata.youtube.com/feeds/videos?callback=?';
+  var data = { vq: 'google', alt: 'json-in-script' };
+  $.getJSON(url, data, function(json) {
+	$.each(json.feed.entry, function() {
+      var img = $('<img width="80" height="60" />')
+	    .attr('src', this.media$group.media$thumbnail[0].url);
+      $('<a target="_blank" />')
+	    .attr('href', this.media$group.media$player[0].url)
+	    .append(img)
+	    .appendTo('#videos');
+	});
+  });
+  
+  // delicious
+  var url = 'http://feeds.delicious.com/v2/json';
+  var data = { callback: 'var delicious=' };
+  $.getScript(url + '?' + $.param(data)).next(function() {
+	$.each(delicious, function() {
+      $('<li />')
+	    .text(this.d)
+	    .appendTo('#bookmarks');
+	});
+  });
+
+  // xhr
+  $.getJSON(baseUrl + '/tests/data.json').next(function(json) {
+    $('<li />').text(json.say).appendTo('#xhr');
+  }).getJSON('data.json').next(function(json) {
+    $('<li />').text(json.say).appendTo('#xhr');
+  }).getJSON(baseUrl + '/tests/parsererror.json').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  }).getJSON('parsererror.json').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  }).getJSON('http://www.goo.ne.jp/').error(function(e) {
+    $('<li />').text(e+'').appendTo('#xhr');
+  });
+
+});
+</script>
+</head>
+<body>
+<h1>opensocial-jquery 1.0.4 tests</h1>
+<div id="videos"></div>
+<ul id="bookmarks"></ul>
+<ul id="xhr"></ul>
+</body>
+</html>

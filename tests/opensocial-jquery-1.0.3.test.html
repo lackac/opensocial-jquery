@@ -28,7 +28,7 @@ jQuery(function($) {
 //$.getJSON(url, data, function(json) {
   $.getJSON(url, data).next(function(json) {
 	$.each(json.feed.entry, function() {
-      var img = $('<img width="80" heieht="60" />')
+      var img = $('<img width="80" height="60" />')
 	    .attr('src', this.media$group.media$thumbnail[0].url);
       $('<a target="_blank" />')
 	    .attr('href', this.media$group.media$player[0].url)
@@ -80,7 +80,7 @@ jQuery(function($) {
 <a class="signout" href="#signout" onclick="jQuery.signOut();">Sign out</a> |
 <a class="signout" href="#signout" onclick="jQuery.signOut(function() { console.log('signOut', this, $.anonymous); });">Sign out + CALLBACK</a>
 </p>
-<form onsubmit="jQuery.invite(this.message.value);">
+<form onsubmit="jQuery.invite(this.message.value); return false;">
 <a class="invite" href="#invite" onclick="jQuery.invite();">Invite</a>
 <input name="message" />
 <input type="submit" value="Invite" />

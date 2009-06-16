@@ -49,7 +49,7 @@ jQuery(function($, data) {
   var data = { vq: 'yahoo', alt: 'json-in-script' };
   $.getJSON(url, data).next(function(json) {
 	$.each(json.feed.entry, function() {
-      var img = $('<img width="80" heieht="60" />')
+      var img = $('<img width="80" height="60" />')
 	    .attr('src', this.media$group.media$thumbnail[0].url);
       $('<a target="_blank" />')
 	    .attr('href', this.media$group.media$player[0].url)
