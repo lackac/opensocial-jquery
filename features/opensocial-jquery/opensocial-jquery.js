@@ -1,5 +1,5 @@
 /**
- * opensocial-jquery 1.0.1
+ * opensocial-jquery 1.0.4 RC1
  * http://code.google.com/p/opensocial-jquery/
  *
  * Enhancing of jQuery.ajax with JSDeferred
@@ -2320,7 +2320,7 @@ jQuery.fn.extend({
 		// Attach the listeners
 		bindReady();
 
-		var data = gadgets.views && gadgets.views.getParams() || {};
+		var data = window.gadgets && gadgets.views && gadgets.views.getParams() || {};
 
 		// If the DOM is already ready
 		if ( jQuery.isReady )
@@ -2330,7 +2330,7 @@ jQuery.fn.extend({
 		// Otherwise, remember the function for later
 		else
 			// Add the function to the wait list
-//			jQuery.readyList.push( function() { return fn.call(this, jQuery); } );
+//		jQuery.readyList.push( function() { return fn.call(this, jQuery); } );
 			jQuery.readyList.push( function() { return fn.call( this, jQuery, data ); } );
 
 		return this;
@@ -2368,65 +2368,159 @@ var readyBound = false;
 
 function bindReady(){
 	if ( readyBound ) return;
+
+	if (window.google && google.friendconnect)
+	  if (!jQuery.container.id) return;
+
 	readyBound = true;
 
-//	// Mozilla, Opera (see further below for it) and webkit nightlies currently support this event
-//	if ( document.addEventListener && !jQuery.browser.opera)
-//		// Use the handy event callback
-//		document.addEventListener( "DOMContentLoaded", jQuery.ready, false );
-//
-//	// If IE is used and is not in a frame
-//	// Continually check to see if the document is ready
-//	if ( jQuery.browser.msie && window == top ) (function(){
-//		if (jQuery.isReady) return;
-//		try {
-//			// If IE is used, use the trick by Diego Perini
-//			// http://javascript.nwbox.com/IEContentLoaded/
-//			document.documentElement.doScroll("left");
-//		} catch( error ) {
-//			setTimeout( arguments.callee, 0 );
-//			return;
-//		}
-//		// and execute any waiting functions
-//		jQuery.ready();
-//	})();
-//
-//	if ( jQuery.browser.opera )
-//		document.addEventListener( "DOMContentLoaded", function () {
-//			if (jQuery.isReady) return;
-//			for (var i = 0; i < document.styleSheets.length; i++)
-//				if (document.styleSheets[i].disabled) {
-//					setTimeout( arguments.callee, 0 );
-//					return;
-//				}
-//			// and execute any waiting functions
-//			jQuery.ready();
-//		}, false);
-//
-//	if ( jQuery.browser.safari ) {
-//		var numStyles;
-//		(function(){
-//			if (jQuery.isReady) return;
-//			if ( document.readyState != "loaded" && document.readyState != "complete" ) {
-//				setTimeout( arguments.callee, 0 );
-//				return;
-//			}
-//			if ( numStyles === undefined )
-//				numStyles = jQuery("style, link[rel=stylesheet]").length;
-//			if ( document.styleSheets.length != numStyles ) {
-//				setTimeout( arguments.callee, 0 );
-//				return;
-//			}
-//			// and execute any waiting functions
-//			jQuery.ready();
-//		})();
-//	}
-//
-//	// A fallback to window.onload, that will always work
-//	jQuery.event.add( window, "load", jQuery.ready );
+	if (window.google && google.friendconnect) {
+		if (jQuery.container.parentUrl)
+			google.friendconnect.container.setParentUrl(jQuery.container.parentUrl);
+		google.friendconnect.container.setNoCache(jQuery.container.cache ? 0 : 1);
+		google.friendconnect.container.loadOpenSocialApi({
+			site: jQuery.container.id, onload: function(st) {
+			  jQuery.anonymous = !(document.cookie && /fcauth[0-9]+=/.test(document.cookie));
+				if (!jQuery.isReady)
+					return jQuery.ready();
+				jQuery.signList[''].apply(document);
+			}
+		});
+	} else if (window.gadgets) {
+		gadgets.util.registerOnLoadHandler(jQuery.ready);
+	} else {
 
-	gadgets.util.registerOnLoadHandler(jQuery.ready);
+	// Mozilla, Opera (see further below for it) and webkit nightlies currently support this event
+	if ( document.addEventListener && !jQuery.browser.opera)
+		// Use the handy event callback
+		document.addEventListener( "DOMContentLoaded", jQuery.ready, false );
+
+	// If IE is used and is not in a frame
+	// Continually check to see if the document is ready
+	if ( jQuery.browser.msie && window == top ) (function(){
+		if (jQuery.isReady) return;
+		try {
+			// If IE is used, use the trick by Diego Perini
+			// http://javascript.nwbox.com/IEContentLoaded/
+			document.documentElement.doScroll("left");
+		} catch( error ) {
+			setTimeout( arguments.callee, 0 );
+			return;
+		}
+		// and execute any waiting functions
+		jQuery.ready();
+	})();
+
+	if ( jQuery.browser.opera )
+		document.addEventListener( "DOMContentLoaded", function () {
+			if (jQuery.isReady) return;
+			for (var i = 0; i < document.styleSheets.length; i++)
+				if (document.styleSheets[i].disabled) {
+					setTimeout( arguments.callee, 0 );
+					return;
+				}
+			// and execute any waiting functions
+			jQuery.ready();
+		}, false);
+
+	if ( jQuery.browser.safari ) {
+		var numStyles;
+		(function(){
+			if (jQuery.isReady) return;
+			if ( document.readyState != "loaded" && document.readyState != "complete" ) {
+				setTimeout( arguments.callee, 0 );
+				return;
+			}
+			if ( numStyles === undefined )
+				numStyles = jQuery("style, link[rel=stylesheet]").length;
+			if ( document.styleSheets.length != numStyles ) {
+				setTimeout( arguments.callee, 0 );
+				return;
+			}
+			// and execute any waiting functions
+			jQuery.ready();
+		})();
+	}
+
+	// A fallback to window.onload, that will always work
+	jQuery.event.add( window, "load", jQuery.ready );
+
+  }
 }
+
+jQuery.extend({
+	
+	// invite
+	invite: function(message) {
+		google.friendconnect.requestInvite(message);
+	},
+
+	// settings
+	settings: function(fn) {
+		jQuery.signList[''] = fn || function() {};
+		google.friendconnect.requestSettings();
+	},
+
+	// anonymous
+	anonymous: true,
+
+	// signList
+	signList: {},
+
+	// signIn
+	signIn: function(provider, fn) {
+		if (jQuery.isFunction(provider)) {
+			fn = provider; provider = null;
+		}
+		if (provider)
+			provider = provider.toUpperCase();
+		jQuery.signList[''] = fn || function() {};
+		google.friendconnect.requestSignIn(provider);
+	},
+
+	// signOut
+	signOut: function(fn) {
+		jQuery.signList[''] = fn || function() {};
+		google.friendconnect.requestSignOut();
+	}
+});
+
+jQuery.fn.extend({
+	
+	// signIn
+	signIn: function(fn) {
+		var guid = now();
+		this.each(function() {
+			if (!this.id)
+				this.id = 'signIn' + guid++;
+			var self = jQuery(this);
+			google.friendconnect.renderSignInButton({
+				id: this.id, text: self.text(), style: self.hasClass('text') && 'text' ||
+					self.hasClass('long') && 'long' || 'standard'
+			});
+			self.children('div:first').click(function() {
+				jQuery.signList[''] = function() {
+					self.each(fn || function() {});
+				}
+			});
+		});
+	},
+
+	// gadget
+	gadget: function(url, data) {
+		var guid = now();
+		this.each(function() {
+			if (!this.id)
+				this.id = 'gadget' + guid++;
+			if (jQuery.container.parentUrl)
+				google.friendconnect.container.setParentUrl(jQuery.container.parentUrl);
+			google.friendconnect.container.setNoCache(jQuery.container.cache ? 0 : 1);
+			google.friendconnect.container.renderOpenSocialGadget({
+				id: this.id, url: url, 'view-params': data, site: jQuery.container.id
+			});
+		});
+	}
+});
 
 jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
 	"mousedown,mouseup,mousemove,mouseover,mouseout,change,select," +
@@ -2585,6 +2679,14 @@ jQuery.extend({
 		return jQuery.get(url, data, callback, "json");
 	},
 
+  getFeed: function(url, data, callback) {
+    return jQuery.get(url, data, callback, 'feed');
+  },
+
+  getData: function(url, data, callback) {
+    return jQuery.get(url, data, callback, 'data');
+  },
+
 	post: function( url, data, callback, type ) {
 		var off = url.indexOf(" ");
 		if ( off >= 0 ) {
@@ -2606,6 +2708,10 @@ jQuery.extend({
 			oauth: oauth
 		});
 	},
+
+  postData: function(url, data, callback) {
+    return jQuery.post(url, data, callback, 'data');
+  },
 
 	ajaxSetup: function( settings ) {
 		jQuery.extend( jQuery.ajaxSettings, settings );
@@ -2683,8 +2789,8 @@ jQuery.extend({
 				// Garbage collect
 				window[ jsonp ] = undefined;
 				try{ delete window[ jsonp ]; } catch(e){}
-//				if ( head )
-//					head.removeChild( script );
+				if ( head )
+					head.removeChild( script );
 			};
 		}
 
@@ -2711,47 +2817,51 @@ jQuery.extend({
 		if ( s.global && ! jQuery.active++ )
 			jQuery.event.trigger( "ajaxStart" );
 
-//		// Matches an absolute URL, and saves the domain
-//		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
-//
-//		// If we're requesting a remote document
-//		// and trying to load JSON or Script with a GET
-//		if ( s.dataType == "script" && type == "GET"
-//				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
-//			var head = document.getElementsByTagName("head")[0];
-//			var script = document.createElement("script");
-//			script.src = s.url;
-//			if (s.scriptCharset)
-//				script.charset = s.scriptCharset;
-//
-//			// Handle Script loading
-//			if ( !jsonp ) {
-//				var done = false;
-//
-//				// Attach handlers for all browsers
-//				script.onload = script.onreadystatechange = function(){
-//					if ( !done && (!this.readyState ||
-//							this.readyState == "loaded" || this.readyState == "complete") ) {
-//						done = true;
-//						success();
-//						complete();
-//						head.removeChild( script );
-//					}
-//				};
-//			}
-//
-//			head.appendChild(script);
-//
-//			// We handle everything using the script element injection
-//			return undefined;
-//		}
+		if (window.google && google.friendconnect || !window.gadgets) {
+
+		// Matches an absolute URL, and saves the domain
+		var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
+
+		// If we're requesting a remote document
+		// and trying to load JSON or Script with a GET
+		if ( s.dataType == "script" && type == "GET"
+				&& remote.test(s.url) && remote.exec(s.url)[1] != location.host ){
+			var head = document.getElementsByTagName("head")[0];
+			var script = document.createElement("script");
+			script.src = s.url;
+			if (s.scriptCharset)
+				script.charset = s.scriptCharset;
+
+			// Handle Script loading
+			if ( !jsonp ) {
+				var done = false;
+
+				// Attach handlers for all browsers
+				script.onload = script.onreadystatechange = function(){
+					if ( !done && (!this.readyState ||
+							this.readyState == "loaded" || this.readyState == "complete") ) {
+						done = true;
+						success();
+						complete();
+						head.removeChild( script );
+					}
+				};
+			}
+
+			head.appendChild(script);
+
+			// We handle everything using the script element injection
+			return undefined;
+		}
+
+		}
 
 		var requestDone = false;
 
 //		// Create the request object; Microsoft failed to properly
 //		// implement the XMLHttpRequest in IE7, so we use the ActiveXObject when it is available
 //		var xhr = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
-    var xhr = s.xhr(type, s.url);
+    var xhr = s.xhr(type, s.url, s);
 
 		// Open the socket
 		// Passing null username, generates a login popup on Opera (#2865)
@@ -2865,9 +2975,7 @@ jQuery.extend({
 
 		// Send the data
 		try {
-//			xhr.send(s.data);
-			xhr.send(s.data, s);
-
+			xhr.send(s.data);
 		} catch(e) {
 			jQuery.handleError(s, xhr, null, e);
 		}
@@ -3691,6 +3799,78 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     }
   };
 
+  Deferred.parallel = function (dl) {
+    var ret = new Deferred(), values = {}, num = 0;
+    for (var i in dl) if (dl.hasOwnProperty(i)) {
+      (function (d, i) {
+        d.next(function (v) {
+          values[i] = v;
+          if (--num <= 0) {
+            if (dl instanceof Array) {
+              values.length = dl.length;
+              values = Array.prototype.slice.call(values, 0);
+            }
+            ret.call(values);
+          }
+        }).error(function (e) {
+          ret.fail(e);
+        });
+        num++;
+      })(dl[i], i);
+    }
+    if (!num) Deferred.next(function () { ret.call() });
+    ret.canceller = function () {
+      for (var i in dl) if (dl.hasOwnProperty(i)) {
+        dl[i].cancel();
+      }
+    };
+    return ret;
+  };
+
+  Deferred.wait = function (n) {
+    var d = new Deferred(), t = new Date();
+    var id = setTimeout(function () {
+      clearTimeout(id);
+      d.call((new Date).getTime() - t.getTime());
+    }, n * 1000);
+    d.canceller = function () { try { clearTimeout(id) } catch (e) {} };
+    return d;
+  };
+
+  Deferred.next = function (fun) {
+    var d = new Deferred();
+    var id = setTimeout(function () { clearTimeout(id); d.call() }, 0);
+    if (fun) d.callback.ok = fun;
+    d.canceller = function () { try { clearTimeout(id) } catch (e) {} };
+    return d;
+  };
+
+  Deferred.call = function (f, args) {
+    args = Array.prototype.slice.call(arguments);
+    f    = args.shift();
+    return Deferred.next(function () {
+      return f.apply(this, args);
+    });
+  };
+
+  Deferred.register = function (name, fun) {
+    this.prototype[name] = function () {
+      return this.next(Deferred.wrap(fun).apply(null, arguments));
+    };
+  };
+
+  Deferred.wrap = function (dfun) {
+    return function () {
+      var a = arguments;
+      return function () {
+        return dfun.apply(null, a);
+      };
+    };
+  };
+
+  //Deferred.register("parallel", Deferred.parallel);
+  Deferred.register("wait", Deferred.wait);
+
 /**
  * Enhancing of jQuery.ajax with JSDeferred
  * http://developmentor.lrlab.to/
@@ -3703,6 +3883,16 @@ jQuery.each([ "Height", "Width" ], function(i, name){
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
  */
+
+  // deferred
+  $.deferred = function() {
+    return new Deferred();
+  };
+
+  // define
+  $.each(['parallel','wait','next','call'], function() {
+    $[this] = Deferred[this];
+  });
 
   // _ajax
   $._ajax = $.ajax;
@@ -3725,6 +3915,11 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     return deferred;
   };
 
+  // register
+  $.each(['ajax','get','getJSON','getFeed','getData','post','postData'], function() {
+    Deferred.register(this, $[this]);
+  });
+
 })(jQuery);
 (function($) {
 
@@ -3732,10 +3927,11 @@ jQuery.each([ "Height", "Width" ], function(i, name){
    * Environment
    */
 
-  var params = gadgets.util.getUrlParameters();
-  var synd = params['synd'] || '';
+  var params = window.gadgets && gadgets.util.getUrlParameters() || {};
+  var synd = params['synd'] || params['container'] || '';
   var parent = params['parent'] || '';
   var v = params['v'] || '';
+  var nocache = params['nocache'] || '0';
   
   $.container = {
     igoogle: /ig/.test(synd),
@@ -3743,10 +3939,13 @@ jQuery.each([ "Height", "Width" ], function(i, name){
     hi5: /hi5/.test(synd),
     myspace: /msappspace/.test(location.host),
     goohome: /goohome/.test(synd),
+    friendconnect: /peoplesense/.test(synd),
+    mixi: /mixi/.test(location.host),
     sandbox: /sandbox/.test(synd) ||
       /sandbox/.test(parent) ||
       /sandbox/.test(location.host) ||
-      /msappspace/.test(location.host) && /dev/.test(v)
+      /msappspace/.test(location.host) && /dev/.test(v),
+    cache: nocache != '1'
   };
 
   for (var key in $.container)
@@ -3755,7 +3954,7 @@ jQuery.each([ "Height", "Width" ], function(i, name){
 
   $.feature = function(name) {
     return gadgets.util.getFeatureParameters(name);
-  }
+  };
   
   /**
    * Preference
@@ -3854,28 +4053,25 @@ jQuery.each([ "Height", "Width" ], function(i, name){
   /**
    * Flash
    */
-if (gadgets.flash) {
 
-  $.flash = {
-    version: gadgets.flash.getMajorVersion()
-  };
+  var flash = window.gadgets && gadgets.flash && gadgets.flash.getMajorVersion();
+  if (flash)
+    $.flash = { version: flash };
 
   $.fn.flash = function(url, data) {
     data = $.extend(true, {}, data);
     for (var key in data)
       if (key.toLowerCase() == 'flashvars' && data[key] && typeof(data[key]) != 'string')
          data[key] = jQuery.param(data[key]);
+    var fn = $.container.cache ? 'embedCachedFlash' : 'embedFlash';
     return this.each(function() {
-      gadgets.flash.embedFlash(url, this, $.flash.version, data);
+      gadgets.flash[fn](url, this, $.flash.version, data);
     });
   };
-
-}
 
   /**
    * MiniMessage
    */
-if (gadgets.MiniMessage) {
 
   $.fn.minimessage = function(fn) {
     return this.each(function(i, n) {
@@ -3888,12 +4084,9 @@ if (gadgets.MiniMessage) {
     });
   };
 
-} // if (gadgets.MiniMessage) {
-
   /**
    * Tabs
    */
-if (gadgets.TabSet) {
 
   $.fn.tabs = function(fn) {
     return this.each(function() {
@@ -3916,12 +4109,9 @@ if (gadgets.TabSet) {
     });
   };
 
-} // if (gadgets.TabSet) {
-
   /**
    * PubSub
    */
-if (gadgets.pubsub) {
 
   $.pub = function(channel, data) {
     gadgets.pubsub.publish(channel, data);
@@ -3931,26 +4121,22 @@ if (gadgets.pubsub) {
     gadgets.pubsub.subscribe(channel, fn);
   };
 
-} // if (gadgets.pubsub) {
-
   /**
    * Skins
    */
-if (gadgets.skins) {
-
-} // if (gadgets.skins) {
 
 })(jQuery);
 (function($) {
 
   $._xhr = function() {
-    this.initialize();
+    this.initialize.apply(this, arguments);
   };
 
   $._xhr.prototype = {
     
-    initialize: function() {
+    initialize: function(s) {
       this.readyState = 0; // UNSENT
+      this.s = s;
     },
   
     open: function(type, url, async, username, password) {
@@ -3961,9 +4147,11 @@ if (gadgets.skins) {
       this.responseHeaders = {};
     },
 
-    send: function(data, s) {
+    send: function(data) {
       var self = this;
-      var dataType = s.dataType;
+      var url = self.url;
+      var oauth = self.s.oauth;
+      var dataType = self.s.dataType;
       
       var opt_params = [];
       opt_params[gadgets.io.RequestParameters.METHOD] = self.type;
@@ -3976,14 +4164,17 @@ if (gadgets.skins) {
       if (data)
         opt_params[gadgets.io.RequestParameters.POST_DATA] = data;
 
-      if (s.oauth == 'signed')
+      if (oauth == 'signed')
         opt_params[gadgets.io.RequestParameters.AUTHORIZATION] =
           gadgets.io.AuthorizationType.SIGNED;
 
       if (dataType == 'feed')
         opt_params['NUM_ENTRIES'] = 10;
 
-      gadgets.io.makeRequest(this.url, function(res) {
+      if (!$.container.cache)
+        opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
+
+      gadgets.io.makeRequest(url, function(res) {
         self.readyState = 4; // DONE
 
         if ($.container.myspace) {
@@ -4024,7 +4215,7 @@ if (gadgets.skins) {
             self.responseText = res.errors.join(' ');
           
           } else {
-            self.status = res.rc;
+            self.status = res.rc || 200;
             //self.statusText = 'OK';
             self.responseHeaders = res.headers || {};
             self.responseText = res.text;
@@ -4032,10 +4223,11 @@ if (gadgets.skins) {
             if (dataType == 'xml')
               self.responseXML = res.data;
             else if (dataType == 'feed') {
-              $.each(res.data.Entry, function(i, entry) {
-                if (entry.Date < Math.pow(2, 32))
-                  entry.Date *= 1000;
-              });
+              if (res.data)
+                $.each(res.data.Entry, function(i, entry) {
+                  if (entry.Date < Math.pow(2, 32))
+                    entry.Date *= 1000;
+                });
               self.responseFeed = res.data;
             }
           }
@@ -4059,53 +4251,44 @@ if (gadgets.skins) {
 
   var routes = [];
 
-  $.ajaxSettings.xhr = function(type, url) {
+  $.ajaxSettings.xhr = function(type, url, s) {
     for (route in routes)
       if ((type + ' ' + url).indexOf(route) == 0)
         return new routes[route];
-    return new $._xhr();
+    if (!(window.google && google.friendconnect || !window.gadgets)) {
+      var remote = /^(?:\w+:)?\/\/([^\/?#]+)/;
+      if (remote.test(url) && remote.exec(url)[1] != location.host)
+        return new $._xhr(s);
+    }
+    return window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
   };
 
   $.ajaxSettings.xhr.addRoute = function(type, url, xhr) {
     routes[type + ' ' + url] = xhr;
   };
 
-  $.getFeed = function( url, data, callback ) {
-    return jQuery.get(url, data, callback, 'feed');
-  };
-
   $.proxy = function(url) {
-    return gadgets.io.getProxyUrl(url);
+    var opt_params = {};
+    if (!$.container.cache)
+      opt_params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 1;
+    return gadgets.io.getProxyUrl(url, opt_params);
   };
 
 })(jQuery);
 (function($) {
   
-  if (window.opensocial === undefined)
-    return;
-
   /**
    * Environment
    */
-if (opensocial) {
 
   $(function() {
-    $.container.domain = opensocial.getEnvironment().getDomain();
+    if (window.opensocial)
+      $.container.domain = opensocial.getEnvironment().getDomain();
   });
-
-} // if (opensocial) {
 
   /**
    * DataRequest
    */
-
-  $.getData = function(url, data, callback) {
-    return jQuery.get(url, data, callback, 'data');
-  };
-
-  $.postData = function(url, data, callback) {
-    return jQuery.post(url, data, callback, 'data');
-  };
 
   var selector = {
     '@me': 'VIEWER',
@@ -4113,6 +4296,7 @@ if (opensocial) {
     '@owner': 'OWNER',
     '@self': 'SELF',
     '@friends': 'FRIENDS',
+    '@admins': 'ADMINS',
     '@all': 'ALL',
     '@me/@friends': 'VIEWER_FRIENDS',
     '@viewer/@friends': 'VIEWER_FRIENDS',
@@ -4440,7 +4624,6 @@ if (opensocial) {
   /**
    * getActivity
    */
-if (opensocial) {
   
   $._xhr.getActivity = function() {
     this.initialize();
@@ -4486,12 +4669,9 @@ if (opensocial) {
 
   $.ajaxSettings.xhr.addRoute('GET', '/activities/', $._xhr.getActivity);
 
-} // if (opensocial) {
-
   /**
    * postActivity
    */
-if (opensocial) {
   
   $._xhr.postActivity = function() {
     this.initialize();
@@ -4535,12 +4715,9 @@ if (opensocial) {
 
   $.ajaxSettings.xhr.addRoute('POST', '/activities/', $._xhr.postActivity);
 
-} // if (opensocial) {
-
   /**
    * postMessage
    */
-if (opensocial) {
   
   $._xhr.postMessage = function() {
     this.initialize();
@@ -4589,7 +4766,5 @@ if (opensocial) {
   });
 
   $.ajaxSettings.xhr.addRoute('POST', '/messages/', $._xhr.postMessage);
-
-} // if (opensocial) {
 
 })(jQuery);

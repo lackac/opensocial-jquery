@@ -12,7 +12,9 @@ Dual licensed under the MIT and GPL licenses:
 http://www.opensource.org/licenses/mit-license.php
 http://www.gnu.org/licenses/gpl.html
 -->
-<ModulePrefs title="Picasa Web Albums - samples - opensocial-jquery">
+<ModulePrefs 
+  title="Picasa Web Albums"
+>
 <Require feature="dynamic-height" />
 <Require feature="settitle" />
 <Require feature="views" />
@@ -25,7 +27,7 @@ http://www.gnu.org/licenses/gpl.html
 jQuery(function($) {
 
   // Retrieves a preference as a string.
-  var tag = $.pref('tag');
+  var tag = $.pref('tag') || 'dog';
 
   // Sets the gadget title.
   $(window).title(tag + ' - Picasa Web Albums');
@@ -88,7 +90,7 @@ jQuery(function($, data) {
   var photo = $('#photo img');
 
   // Retrieves a preference as a string.
-  var tag = $.pref('tag');
+  var tag = $.pref('tag') || 'dog';
 
   // Sets the gadget title.
   $(window).title(tag + ' - Picasa Web Albums');
